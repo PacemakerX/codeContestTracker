@@ -33,7 +33,7 @@ const userSchema = new mongoose.Schema(
     },
     bookmarkedContests: [
       {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Number,
         ref: "Contest",
       },
     ],
