@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import CodeforcesLogo from '../assets/codeforces.svg';
-import LeetcodeLogo from '../assets/leetcode.svg';
-import CodechefLogo from '../assets/codechef.svg';
+import CodeforcesLogo from "../assets/codeforces.svg";
+import LeetcodeLogo from "../assets/leetcode.svg";
+import CodechefLogo from "../assets/codechef.svg";
 // import HackerrankLogo from '../assets/hackerrank.svg';
 // import AtcoderLogo from '../assets/atcoder.svg';
 // import TopcoderLogo from '../assets/topcoder.svg';
@@ -49,11 +49,11 @@ export default function ContestList() {
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleString(undefined, {
-      year: 'numeric',
-      month: 'numeric',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -80,13 +80,19 @@ export default function ContestList() {
 
   const getPlatformLogo = (host) => {
     const platformLogos = {
-      "codeforces.com": <img src={CodeforcesLogo} alt="Codeforces" className="w-6 h-6" />,
-      "leetcode.com": <img src={LeetcodeLogo} alt="Leetcode" className="w-6 h-6" />,
-      "codechef.com": <img src={CodechefLogo} alt="Codechef" className="w-6 h-6" />,
-    //   "hackerrank.com": <img src={HackerrankLogo} alt="Hackerrank" className="w-6 h-6" />,
-    //   "atcoder.jp": <img src={AtcoderLogo} alt="Atcoder" className="w-6 h-6" />,
-    //   "topcoder.com": <img src={TopcoderLogo} alt="Topcoder" className="w-6 h-6" />,
-    //   "hackerearth.com": <img src={HackerearthLogo} alt="Hackerearth" className="w-6 h-6" />,
+      "codeforces.com": (
+        <img src={CodeforcesLogo} alt="Codeforces" className="w-6 h-6" />
+      ),
+      "leetcode.com": (
+        <img src={LeetcodeLogo} alt="Leetcode" className="w-6 h-6" />
+      ),
+      "codechef.com": (
+        <img src={CodechefLogo} alt="Codechef" className="w-6 h-6" />
+      ),
+      //   "hackerrank.com": <img src={HackerrankLogo} alt="Hackerrank" className="w-6 h-6" />,
+      //   "atcoder.jp": <img src={AtcoderLogo} alt="Atcoder" className="w-6 h-6" />,
+      //   "topcoder.com": <img src={TopcoderLogo} alt="Topcoder" className="w-6 h-6" />,
+      //   "hackerearth.com": <img src={HackerearthLogo} alt="Hackerearth" className="w-6 h-6" />,
     };
 
     return platformLogos[host] || <span className="text-xl">🖥️</span>;
@@ -103,11 +109,13 @@ export default function ContestList() {
 
   return (
     <div className="max-w-5xl mx-auto mt-8">
-      <h2 className="text-2xl font-bold text-white mb-4">
-        Coding Contests
-      </h2>
+      <h2 className="text-2xl font-bold text-white mb-4">Coding Contests</h2>
 
-      {isLoading && <p className="text-white">Loading contests...</p>}
+      {isLoading && (
+        <div className="flex justify-center items-center py-4">
+          <div className="w-8 h-8 border-4 border-blue-500 border-solid border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      )}
 
       {/* Past Contests Table */}
       {!isLoading && pastContests.length > 0 && (
@@ -138,9 +146,9 @@ export default function ContestList() {
                       {formatDate(contest.start)}
                     </td>
                     <td className="p-3 text-white font-medium">
-                      <a 
-                        href={contest.href} 
-                        target="_blank" 
+                      <a
+                        href={contest.href}
+                        target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 hover:text-blue-400 transition-colors"
                       >
@@ -189,17 +197,15 @@ export default function ContestList() {
                     className="border-b border-gray-700 hover:bg-gray-700"
                   >
                     <td className="p-3 text-green-400 font-mono w-40">
-                      <div className="w-32">
-                        {getCountdown(contest.start)}
-                      </div>
+                      <div className="w-32">{getCountdown(contest.start)}</div>
                     </td>
                     <td className="p-3 text-gray-300 w-48">
                       {formatDate(contest.start)}
                     </td>
                     <td className="p-3 text-white font-medium">
-                      <a 
-                        href={contest.href} 
-                        target="_blank" 
+                      <a
+                        href={contest.href}
+                        target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 hover:text-blue-400 transition-colors"
                       >
