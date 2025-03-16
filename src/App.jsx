@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ContestList from "./components/contestList"; // Adjust path if needed
 import Navbar from "./components/Navbar"; // Adjust path if needed
 import Footer from "./components/Footer"; // Adjust path if needed
+import Login from "./components/Login";
+import Signup from "./components/SignUp";
 
 function App() {
   return (
@@ -20,6 +22,8 @@ function App() {
         <main className="flex-grow container mx-auto px-4 py-8">
           <Routes>
             <Route path="/" element={<ContestList />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
           </Routes>
         </main>
 
