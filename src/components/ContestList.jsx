@@ -187,7 +187,7 @@ export default function ContestList() {
                   <th className="p-3 text-left">Status</th>
                   <th className="p-3 text-left">Start Time</th>
                   <th className="p-3 text-left">Contest Name</th>
-                  {token && <th className="p-3 text-center">Actions</th>}
+                  <th className="p-3 text-center">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -203,12 +203,17 @@ export default function ContestList() {
                         {contest.event}
                       </a>
                     </td>
-                    {token && (
-                      <td className="p-3 flex justify-center gap-4">
-                        <button className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded">⏰ Add Reminder</button>
-                        <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">⭐ Bookmark</button>
-                      </td>
-                    )}
+                    <td className="p-3 flex justify-center">
+                      {/* YouTube solution button - visible to all users */}
+                      <a 
+                        href={`https://www.youtube.com/results?search_query=${encodeURIComponent(contest.event + " solutions")}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded flex items-center gap-2"
+                      >
+                        <span>▶️</span> Watch Solutions
+                      </a>
+                    </td>
                   </tr>
                 ))}
               </tbody>
