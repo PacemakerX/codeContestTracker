@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux"; // Import useSelector
+import { useSelector } from "react-redux";
 import CodeforcesLogo from "../assets/codeforces.svg";
 import LeetcodeLogo from "../assets/leetcode.svg";
 import CodechefLogo from "../assets/codechef.svg";
@@ -11,8 +11,15 @@ export default function ContestList() {
   const [isLoading, setIsLoading] = useState(true);
   const [currentTime, setCurrentTime] = useState(new Date());
   const hasFetchedData = useRef(false);
+  
+  // Platform filter state
+  const [selectedPlatforms, setSelectedPlatforms] = useState({
+    "codeforces.com": true,
+    "leetcode.com": true,
+    "codechef.com": true
+  });
 
-  const { token } = useSelector((state) => state.auth); // Get token from Redux state
+  const { token } = useSelector((state) => state.auth);
 
   useEffect(() => {
     if (!hasFetchedData.current) {
@@ -83,13 +90,86 @@ export default function ContestList() {
     return platformLogos[host] || <span className="text-xl">🖥️</span>;
   };
 
+  // Handle platform selection toggle
+  const togglePlatform = (platform) => {
+    setSelectedPlatforms((prev) => ({
+      ...prev,
+      [platform]: !prev[platform],
+    }));
+  };
+
+  // Handle "Select All" toggle
+  const toggleAllPlatforms = () => {
+    const allSelected = Object.values(selectedPlatforms).every(value => value);
+    setSelectedPlatforms({
+      "codeforces.com": !allSelected,
+      "leetcode.com": !allSelected,
+      "codechef.com": !allSelected
+    });
+  };
+
+  // Filter contests based on selected platforms
+  const filteredContests = contests.filter(contest => 
+    selectedPlatforms[contest.host] === true
+  );
+
   const now = new Date();
-  const pastContests = contests.filter((contest) => new Date(contest.start) < now);
-  const upcomingContests = contests.filter((contest) => new Date(contest.start) >= now);
+  const pastContests = filteredContests.filter((contest) => new Date(contest.start) < now);
+  const upcomingContests = filteredContests.filter((contest) => new Date(contest.start) >= now);
 
   return (
     <div className="max-w-5xl mx-auto mt-8">
       <h2 className="text-2xl font-bold text-white mb-4">Coding Contests</h2>
+
+      {/* Platform selection */}
+      <div className="mb-6 bg-gray-800 p-4 rounded-lg">
+        <h3 className="text-lg font-semibold text-white mb-3">Filter by Platform:</h3>
+        <div className="flex flex-wrap gap-3">
+          <button
+            onClick={() => toggleAllPlatforms()}
+            className={`px-4 py-2 rounded-md transition-colors ${
+              Object.values(selectedPlatforms).every(value => value)
+                ? "bg-blue-600 text-white"
+                : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+            }`}
+          >
+            All Platforms
+          </button>
+          <button
+            onClick={() => togglePlatform("codeforces.com")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${
+              selectedPlatforms["codeforces.com"]
+                ? "bg-blue-600 text-white"
+                : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+            }`}
+          >
+            <img src={CodeforcesLogo} alt="Codeforces" className="w-5 h-5" />
+            Codeforces
+          </button>
+          <button
+            onClick={() => togglePlatform("leetcode.com")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${
+              selectedPlatforms["leetcode.com"]
+                ? "bg-blue-600 text-white"
+                : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+            }`}
+          >
+            <img src={LeetcodeLogo} alt="Leetcode" className="w-5 h-5" />
+            LeetCode
+          </button>
+          <button
+            onClick={() => togglePlatform("codechef.com")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${
+              selectedPlatforms["codechef.com"]
+                ? "bg-blue-600 text-white"
+                : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+            }`}
+          >
+            <img src={CodechefLogo} alt="Codechef" className="w-5 h-5" />
+            CodeChef
+          </button>
+        </div>
+      </div>
 
       {isLoading && (
         <div className="flex justify-center items-center py-4">
@@ -174,6 +254,13 @@ export default function ContestList() {
               </tbody>
             </table>
           </div>
+        </div>
+      )}
+
+      {!isLoading && filteredContests.length === 0 && (
+        <div className="bg-gray-800 p-6 rounded-lg text-center text-white">
+          <p className="text-xl">No contests found for the selected platforms.</p>
+          <p className="text-gray-400 mt-2">Try selecting different platforms or check back later.</p>
         </div>
       )}
     </div>
