@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux"; // Import Redux dispatch
-import { loginSuccess } from "../redux/authSlice"; // Import action to update Redux state
+import { loginSuccess } from "../redux/authslice"; // Import action to update Redux state
 
 export default function LoginForm() {
   const [formData, setFormData] = useState({
