@@ -3,10 +3,13 @@ import { useSelector } from "react-redux";
 import CodeforcesLogo from "../assets/codeforces.svg";
 import LeetcodeLogo from "../assets/leetcode.svg";
 import CodechefLogo from "../assets/codechef.svg";
+import BookmarkIcon from "../assets/bookmark.svg";
 
 const API_URL = "http://localhost:3030/api/contests";
 
 export default function ContestList() {
+  const { token } = useSelector((state) => state.auth);
+  const [user, setUser] = useState(null);
   const [contests, setContests] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -16,10 +19,10 @@ export default function ContestList() {
   const [selectedPlatforms, setSelectedPlatforms] = useState({
     "codeforces.com": true,
     "leetcode.com": true,
-    "codechef.com": true
-  });
+    "codechef.com": true,
+ "bookmark": true // Add bookmark only if logged in
+  });  
 
-  const { token } = useSelector((state) => state.auth);
 
   useEffect(() => {
     if (!hasFetchedData.current) {
@@ -34,6 +37,12 @@ export default function ContestList() {
     }, 1000);
 
     return () => clearInterval(timer);
+  }, []);
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
   }, []);
 
   const fetchContests = async () => {
@@ -118,14 +127,24 @@ export default function ContestList() {
     setSelectedPlatforms({
       "codeforces.com": !allSelected,
       "leetcode.com": !allSelected,
-      "codechef.com": !allSelected
+      "codechef.com": !allSelected,
+      "bookmark": !allSelected
     });
   };
 
-  // Filter contests based on selected platforms
-  const filteredContests = contests.filter(contest => 
-    selectedPlatforms[contest.host] === true
-  );
+  const filteredContests = contests.filter((contest) => {
+    // Get the contest ID (try both _id and id to be safe)
+    const contestId = contest._id || contest.id;
+  
+    // Check if "bookmark" filter is selected and contest is bookmarked
+    if (selectedPlatforms["bookmark"] && user?.bookmarks?.includes(Number(contestId))) {
+      return true; // Show bookmarked contests
+    }
+  
+    // Otherwise, filter based on selected platforms
+    return selectedPlatforms[contest.host] === true;
+  });  
+  
 
   const now = new Date();
   const pastContests = filteredContests.filter((contest) => new Date(contest.start) < now);
@@ -137,7 +156,7 @@ export default function ContestList() {
 
       {/* Platform selection */}
       <div className="mb-6 bg-gray-800 p-4 rounded-lg">
-        <h3 className="text-lg font-semibold text-white mb-3">Filter by Platform:</h3>
+        <h3 className="text-lg font-semibold text-white mb-3">Filter by Platform {token ? "/ Bookmarks" : ""}</h3>
         <div className="flex flex-wrap gap-3">
           <button
             onClick={() => toggleAllPlatforms()}
@@ -182,6 +201,18 @@ export default function ContestList() {
             <img src={CodechefLogo} alt="Codechef" className="w-5 h-5" />
             CodeChef
           </button>
+         {token && <button
+            onClick={() => togglePlatform("bookmark")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${
+              selectedPlatforms["bookmark"]
+                ? "bg-blue-600 text-white"
+                : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+            }`}
+          >
+            <img src={BookmarkIcon} alt="Codechef" className="w-5 h-5" />
+            BookMarked
+          </button>
+}
         </div>
       </div>
 
