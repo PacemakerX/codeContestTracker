@@ -2,3 +2,4 @@
 /codeContestTracker-backend/.env
 
 /codeContestTracker-frontend/node_modules
+/codeContestTracker-frontend/.env
