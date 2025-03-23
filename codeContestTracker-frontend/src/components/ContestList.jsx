@@ -14,15 +14,14 @@ export default function ContestList() {
   const [isLoading, setIsLoading] = useState(true);
   const [currentTime, setCurrentTime] = useState(new Date());
   const hasFetchedData = useRef(false);
-  
+
   // Platform filter state
   const [selectedPlatforms, setSelectedPlatforms] = useState({
     "codeforces.com": true,
     "leetcode.com": true,
     "codechef.com": true,
- "bookmark": true // Add bookmark only if logged in
-  });  
-
+    bookmark: true, // Add bookmark only if logged in
+  });
 
   useEffect(() => {
     if (!hasFetchedData.current) {
@@ -79,7 +78,7 @@ export default function ContestList() {
       hour: "2-digit",
       minute: "2-digit",
     };
-    
+
     return date.toLocaleString("en-IN", options) + " IST";
   };
 
@@ -105,9 +104,15 @@ export default function ContestList() {
 
   const getPlatformLogo = (host) => {
     const platformLogos = {
-      "codeforces.com": <img src={CodeforcesLogo} alt="Codeforces" className="w-6 h-6" />,
-      "leetcode.com": <img src={LeetcodeLogo} alt="Leetcode" className="w-6 h-6" />,
-      "codechef.com": <img src={CodechefLogo} alt="Codechef" className="w-6 h-6" />,
+      "codeforces.com": (
+        <img src={CodeforcesLogo} alt="Codeforces" className="w-6 h-6" />
+      ),
+      "leetcode.com": (
+        <img src={LeetcodeLogo} alt="Leetcode" className="w-6 h-6" />
+      ),
+      "codechef.com": (
+        <img src={CodechefLogo} alt="Codechef" className="w-6 h-6" />
+      ),
     };
 
     return platformLogos[host] || <span className="text-xl">🖥️</span>;
@@ -123,32 +128,40 @@ export default function ContestList() {
 
   // Handle "Select All" toggle
   const toggleAllPlatforms = () => {
-    const allSelected = Object.values(selectedPlatforms).every(value => value);
+    const allSelected = Object.values(selectedPlatforms).every(
+      (value) => value
+    );
     setSelectedPlatforms({
       "codeforces.com": !allSelected,
       "leetcode.com": !allSelected,
       "codechef.com": !allSelected,
-      "bookmark": !allSelected
+      bookmark: !allSelected,
     });
   };
 
   const filteredContests = contests.filter((contest) => {
     // Get the contest ID (try both _id and id to be safe)
     const contestId = contest._id || contest.id;
-  
+
     // Check if "bookmark" filter is selected and contest is bookmarked
-    if (selectedPlatforms["bookmark"] && user?.bookmarks?.includes(Number(contestId))) {
+    if (
+      selectedPlatforms["bookmark"] &&
+      user?.bookmarks?.includes(Number(contestId))
+    ) {
       return true; // Show bookmarked contests
     }
-  
+
     // Otherwise, filter based on selected platforms
     return selectedPlatforms[contest.host] === true;
-  });  
-  
+  });
 
   const now = new Date();
-  const pastContests = filteredContests.filter((contest) => new Date(contest.start) < now);
-  const upcomingContests = filteredContests.filter((contest) => new Date(contest.start) >= now);
+  const pastContests = filteredContests.filter(
+    (contest) => new Date(contest.start) < now
+  );
+  const upcomingContests = filteredContests.filter(
+    (contest) => new Date(contest.start) >= now
+  );
 
   return (
     <div className="max-w-5xl mx-auto mt-8">
@@ -156,12 +169,14 @@ export default function ContestList() {
 
       {/* Platform selection */}
       <div className="mb-6 bg-gray-800 p-4 rounded-lg">
-        <h3 className="text-lg font-semibold text-white mb-3">Filter by Platform {token ? "/ Bookmarks" : ""}</h3>
+        <h3 className="text-lg font-semibold text-white mb-3">
+          Filter by Platform {token ? "/ Bookmarks" : ""}
+        </h3>
         <div className="flex flex-wrap gap-3">
           <button
             onClick={() => toggleAllPlatforms()}
             className={`px-4 py-2 rounded-md transition-colors ${
-              Object.values(selectedPlatforms).every(value => value)
+              Object.values(selectedPlatforms).every((value) => value)
                 ? "bg-blue-600 text-white"
                 : "bg-gray-700 text-gray-300 hover:bg-gray-600"
             }`}
@@ -201,18 +216,19 @@ export default function ContestList() {
             <img src={CodechefLogo} alt="Codechef" className="w-5 h-5" />
             CodeChef
           </button>
-         {token && <button
-            onClick={() => togglePlatform("bookmark")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${
-              selectedPlatforms["bookmark"]
-                ? "bg-blue-600 text-white"
-                : "bg-gray-700 text-gray-300 hover:bg-gray-600"
-            }`}
-          >
-            <img src={BookmarkIcon} alt="Codechef" className="w-5 h-5" />
-            BookMarked
-          </button>
-}
+          {token && (
+            <button
+              onClick={() => togglePlatform("bookmark")}
+              className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${
+                selectedPlatforms["bookmark"]
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+              }`}
+            >
+              <img src={BookmarkIcon} alt="Codechef" className="w-5 h-5" />
+              BookMarked
+            </button>
+          )}
         </div>
       </div>
 
@@ -224,7 +240,9 @@ export default function ContestList() {
 
       {!isLoading && pastContests.length > 0 && (
         <div className="mb-8">
-          <h3 className="text-xl font-semibold text-white mb-2">Past Contests</h3>
+          <h3 className="text-xl font-semibold text-white mb-2">
+            Past Contests
+          </h3>
           <div className="overflow-x-auto">
             <table className="w-full bg-gray-800 rounded-lg shadow">
               <thead>
@@ -237,23 +255,37 @@ export default function ContestList() {
               </thead>
               <tbody>
                 {pastContests.map((contest) => (
-                  <tr key={contest.id} className="border-b border-gray-700 hover:bg-gray-700">
+                  <tr
+                    key={contest.id}
+                    className="border-b border-gray-700 hover:bg-gray-700"
+                  >
                     <td className="p-3 text-gray-300">
                       {new Date(contest.start) > now ? "Ongoing" : "Finished"}
                     </td>
-                    <td className="p-3 text-gray-300">{formatDate(contest.start)}</td>
+                    <td className="p-3 text-gray-300">
+                      {formatDate(contest.start)}
+                    </td>
                     <td className="p-3 text-white font-medium">
-                      <a href={contest.href} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-blue-400 transition-colors">
-                        <span className="text-xl" title={contest.host}>{getPlatformLogo(contest.host)}</span>
+                      <a
+                        href={contest.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 hover:text-blue-400 transition-colors"
+                      >
+                        <span className="text-xl" title={contest.host}>
+                          {getPlatformLogo(contest.host)}
+                        </span>
                         {contest.event}
                       </a>
                     </td>
                     <td className="p-3 flex justify-center">
                       {/* YouTube solution button - visible to all users */}
-                      <a 
-                        href={`https://www.youtube.com/results?search_query=${encodeURIComponent(contest.event + " solutions")}`} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
+                      <a
+                        href={`https://www.youtube.com/results?search_query=${encodeURIComponent(
+                          contest.event + " solutions"
+                        )}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded flex items-center gap-2"
                       >
                         <span>▶️</span> Watch Solutions
@@ -269,7 +301,9 @@ export default function ContestList() {
 
       {!isLoading && upcomingContests.length > 0 && (
         <div>
-          <h3 className="text-xl font-semibold text-white mb-2">Upcoming Contests</h3>
+          <h3 className="text-xl font-semibold text-white mb-2">
+            Upcoming Contests
+          </h3>
           <div className="overflow-x-auto">
             <table className="w-full bg-gray-800 rounded-lg shadow">
               <thead>
@@ -282,21 +316,37 @@ export default function ContestList() {
               </thead>
               <tbody>
                 {upcomingContests.map((contest) => (
-                  <tr key={contest.id} className="border-b border-gray-700 hover:bg-gray-700">
+                  <tr
+                    key={contest.id}
+                    className="border-b border-gray-700 hover:bg-gray-700"
+                  >
                     <td className="p-3 text-green-400 font-mono w-40">
                       <div className="w-32">{getCountdown(contest.start)}</div>
                     </td>
-                    <td className="p-3 text-gray-300 w-48">{formatDate(contest.start)}</td>
+                    <td className="p-3 text-gray-300 w-48">
+                      {formatDate(contest.start)}
+                    </td>
                     <td className="p-3 text-white font-medium">
-                      <a href={contest.href} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-blue-400 transition-colors">
-                        <span className="text-xl" title={contest.host}>{getPlatformLogo(contest.host)}</span>
+                      <a
+                        href={contest.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 hover:text-blue-400 transition-colors"
+                      >
+                        <span className="text-xl" title={contest.host}>
+                          {getPlatformLogo(contest.host)}
+                        </span>
                         {contest.event}
                       </a>
                     </td>
                     {token && (
                       <td className="p-3 flex justify-center gap-4 w-64">
-                        <button className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded">⏰ Set Reminder</button>
-                        <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">⭐ Bookmark</button>
+                        <button className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded">
+                          ⏰ Set Reminder
+                        </button>
+                        <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+                          ⭐ Bookmark
+                        </button>
                       </td>
                     )}
                   </tr>
@@ -309,8 +359,12 @@ export default function ContestList() {
 
       {!isLoading && filteredContests.length === 0 && (
         <div className="bg-gray-800 p-6 rounded-lg text-center text-white">
-          <p className="text-xl">No contests found for the selected platforms.</p>
-          <p className="text-gray-400 mt-2">Try selecting different platforms or check back later.</p>
+          <p className="text-xl">
+            No contests found for the selected platforms.
+          </p>
+          <p className="text-gray-400 mt-2">
+            Try selecting different platforms or check back later.
+          </p>
         </div>
       )}
     </div>
