@@ -41,38 +41,17 @@ export default function ContestList() {
     try {
       const response = await fetch(API_URL);
       const data = await response.json();
-      
+
       // Process the contests data to adjust timezone information
-      const processedData = data.map(contest => {
-        // Adjust contest time based on platform
-        const adjustedContest = {...contest};
-        
-        // Codeforces contests typically need a +5:30 hours adjustment for IST
-        if (contest.host === "codeforces.com") {
-          const originalDate = new Date(contest.start);
-          // Add 5 hours and 30 minutes to get IST from UTC
-          // Note: We're assuming the API returns UTC time for Codeforces
-          originalDate.setTime(originalDate.getTime() + (5.5 * 60 * 60 * 1000));
-          adjustedContest.start = originalDate.toISOString();
-        }
-        
-        // For LeetCode, often needs +5:30 too (assuming API provides UTC)
-        if (contest.host === "leetcode.com") {
-          const originalDate = new Date(contest.start);
-          originalDate.setTime(originalDate.getTime() + (5.5 * 60 * 60 * 1000));
-          adjustedContest.start = originalDate.toISOString();
-        }
-        
-        // For CodeChef (if timezone adjustments are needed)
-        if (contest.host === "codechef.com") {
-          const originalDate = new Date(contest.start);
-          originalDate.setTime(originalDate.getTime() + (5.5 * 60 * 60 * 1000));
-          adjustedContest.start = originalDate.toISOString();
-        }
-        
+      const processedData = data.map((contest) => {
+        const adjustedContest = { ...contest };
+        const originalDate = new Date(contest.start);
+        originalDate.setTime(originalDate.getTime() + 5.5 * 60 * 60 * 1000);
+        adjustedContest.start = originalDate.toISOString();
+
         return adjustedContest;
       });
-      
+
       setContests(processedData);
     } catch {
       // Error handling without console.log
