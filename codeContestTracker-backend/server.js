@@ -12,6 +12,7 @@ const contestRoutes = require("./routes/contestRoutes");
 const bookmarkRoutes = require("./routes/bookmarkRoutes");
 const reminderRoutes = require("./routes/reminderRoutes");
 const rateLimit = require("express-rate-limit");
+const {processReminders} = require("./services/reminderService");
 
 const limiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
@@ -20,6 +21,7 @@ const limiter = rateLimit({
 });
 
 app.use(limiter); // Apply the limiter to all requests
+processReminders();
 
 app.use("/api/users", userRoutes);
 app.use("/api/contests", contestRoutes);
