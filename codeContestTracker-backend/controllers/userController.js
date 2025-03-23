@@ -36,6 +36,12 @@ const loginUser = async (req, res) => {
     res.status(200).json({
       message: "Login successful",
       token,
+      user: {
+        username: user.username,
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+        bookmarks: user.bookmarkedContests,
+      },
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -54,7 +60,8 @@ const getUserProfile = async (req, res) => {
     const token = authHeader.split(" ")[1];
     const decoded = jwt.verify(token, JWT_SECRET);
 
-    if (!decoded || !decoded.id) {  // Fix: Use decoded.id instead of decoded.email
+    if (!decoded || !decoded.id) {
+      // Fix: Use decoded.id instead of decoded.email
       return res.status(401).json({ message: "Invalid token" });
     }
 
@@ -73,7 +80,6 @@ const getUserProfile = async (req, res) => {
   }
 };
 
-
 const updateUserProfile = async (req, res) => {
   try {
     const userId = req.user.id; // Assuming user is authenticated via JWT
@@ -89,6 +95,5 @@ const updateUserProfile = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
 
 module.exports = { registerUser, loginUser, getUserProfile, updateUserProfile };
