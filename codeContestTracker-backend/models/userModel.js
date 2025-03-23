@@ -41,6 +41,7 @@ const userSchema = new mongoose.Schema(
       {
         contestId: {
           type: Number,
+          required: true,
         },
         platforms: {
           type: [String],
@@ -54,10 +55,14 @@ const userSchema = new mongoose.Schema(
         },
         timeBefore: {
           type: Number,
-          default: 60,
+          default: 60, // Default: 60 minutes before the contest
+        },
+        contestTime: {
+          type: Date, // Stores contest start time as Date object
+          required: true,
         },
       },
-    ],
+    ],    
   },    
   { timestamps: true }
 );
