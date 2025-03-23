@@ -5,7 +5,7 @@ import LeetcodeLogo from "../assets/leetcode.svg";
 import CodechefLogo from "../assets/codechef.svg";
 import BookmarkIcon from "../assets/bookmark.svg";
 
-const API_URL = "http://localhost:3030/api/contests";
+const BASE_URL = "http://localhost:3030";
 
 export default function ContestList() {
   const { token } = useSelector((state) => state.auth);
@@ -14,6 +14,48 @@ export default function ContestList() {
   const [isLoading, setIsLoading] = useState(true);
   const [currentTime, setCurrentTime] = useState(new Date());
   const hasFetchedData = useRef(false);
+
+  // Update bookmarks in localStorage after API call
+  const updateBookmarksInLocalStorage = (bookmarks) => {
+    if (user) {
+      const updatedUser = { ...user, bookmarks };
+      setUser(updatedUser); // Update state after changes
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+    }
+  };
+
+  // Toggle bookmark for a contest
+  const toggleBookmark = async (contestId) => {
+    if (!token) return;
+
+    const isBookmarked = user?.bookmarks?.includes(contestId);
+    try {
+      const response = await fetch(`${BASE_URL}/api/bookmarks/${contestId}`, {
+        method: isBookmarked ? "DELETE" : "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.ok) {
+        const updatedBookmarks = isBookmarked
+          ? user.bookmarks.filter((id) => id !== contestId)
+          : [...user.bookmarks, contestId];
+
+        // Update localStorage with new bookmarks
+        updateBookmarksInLocalStorage(updatedBookmarks);
+      }
+    } catch {
+      // Handle errors silently
+    }
+  };
+
+  // Check if a contest is bookmarked
+  const isContestBookmarked = (contestId) => {
+    const currentUser = JSON.parse(localStorage.getItem("user"));
+    return currentUser?.bookmarks?.includes(contestId);
+  };
 
   // Platform filter state
   const [selectedPlatforms, setSelectedPlatforms] = useState({
@@ -47,7 +89,7 @@ export default function ContestList() {
   const fetchContests = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(API_URL);
+      const response = await fetch(`${BASE_URL}/api/contests`);
       const data = await response.json();
 
       // Process the contests data to adjust timezone information
@@ -344,8 +386,20 @@ export default function ContestList() {
                         <button className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded">
                           ⏰ Set Reminder
                         </button>
-                        <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
-                          ⭐ Bookmark
+                        <button
+                          onClick={() => toggleBookmark(contest.id)}
+                          // disabled={bookmarkLoading}
+                          className={`px-4 py-2 rounded flex items-center gap-2 transition-colors ${
+                            isContestBookmarked(contest.id)
+                              ? "bg-yellow-600 hover:bg-yellow-700 text-white"
+                              : "bg-blue-500 hover:bg-blue-600 text-white"
+                          }`}
+                        >
+                          {isContestBookmarked(contest.id) ? (
+                            <>🔖 Remove Bookmark</>
+                          ) : (
+                            <>⭐ Bookmark</>
+                          )}
                         </button>
                       </td>
                     )}
