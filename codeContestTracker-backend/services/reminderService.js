@@ -1,111 +1,123 @@
-const cron = require("node-cron");
+const User = require("../models/userModel");
 const nodemailer = require("nodemailer");
 const twilio = require("twilio");
-const User = require("../models/userModel");
-const fetch = require("node-fetch");
-require("dotenv").config();
+const cron = require("node-cron");
 
-const API_URL = "https://clist.by/api/v4/contest/";
-const API_KEY = process.env.CLIST_API_KEY;
-const TWILIO_SID = process.env.TWILIO_SID;
+// Twilio Configuration
+const TWILIO_ACCOUNT_SID = process.env.TWILIO_SID;
 const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN;
 const TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER;
 
-// Nodemailer transporter setup
+// Email Configuration using Nodemailer
 const transporter = nodemailer.createTransport({
-  service: "Gmail",
+  service: "gmail",
   auth: {
-    user: process.env.EMAIL,
-    pass: process.env.EMAIL_PASSWORD,
+    user: "sparsh.sociallife@gmail.com",
+    pass: "tine prqd vxik bycc",
   },
 });
 
-// Twilio client setup
-const client = twilio(TWILIO_SID, TWILIO_AUTH_TOKEN);
+// Twilio Client
+const twilioClient = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
 
-// Utility function to send email reminders
-const sendEmail = async (email, subject, text) => {
+// Send Email Reminder
+const sendEmailReminder = async (email, contestId, platforms, contestTime) => {
+  const mailOptions = {
+    from: "sparsh.sociallife@gmail.com",
+    to: email,
+    subject: `Reminder for Contest ${contestId}`,
+    text: `Your contest on ${platforms.join(", ")} is starting at ${contestTime.toLocaleString()}. Best of luck!`,
+  };
+
   try {
-    await transporter.sendMail({
-      from: process.env.EMAIL,
-      to: email,
-      subject,
-      text,
-    });
+    await transporter.sendMail(mailOptions);
+    console.log(`Email sent successfully to ${email} for contest ${contestId}`);
   } catch (error) {
-    console.error("Error sending email:", error);
+    console.error(`Error sending email to ${email}:`, error.message);
   }
 };
 
-// Utility function to send SMS reminders
-const sendSMS = async (phoneNumber, message) => {
+const formatPhoneNumber = (number) => {
+  if (!number.startsWith("+")) {
+    return `+91${number}`; // Add +91 if not already included
+  }
+  return number;
+};
+// Send SMS Reminder
+const sendSMSReminder = async (phoneNumber, contestId, platforms, contestTime) => {
+  const messageBody = `Reminder: Your contest on ${platforms.join(
+    ", "
+  )} is starting at ${contestTime.toLocaleString()}. Best of luck!`;
+
   try {
-    await client.messages.create({
-      body: message,
+    const formattedNumber = formatPhoneNumber(phoneNumber);
+    await twilioClient.messages.create({
+      body: messageBody,
       from: TWILIO_PHONE_NUMBER,
-      to: phoneNumber,
+      to: formattedNumber,
     });
+    console.log(`✅ SMS sent successfully to ${phoneNumber}. SID: ${response.sid}`);
   } catch (error) {
-    console.error("Error sending SMS:", error);
+    console.error(`❌ Error sending SMS to ${phoneNumber}:`, error.message);
   }
 };
 
-// Track sent notifications (prevent duplicate reminders)
-const notifiedUsers = new Set();
+// Process Reminders
+const processReminders = async () => {
+  console.log("🔔 Running reminder cron job...");
 
-const checkUpcomingContests = async () => {
+  const now = new Date();
+
   try {
-    const currentTime = new Date();
-
-    // Get maximum `timeBefore` from all users
-    const users = await User.find({ "reminderPreferences.platforms": { $exists: true, $not: { $size: 0 } } });
-
-    if (users.length === 0) return;
-
-    const maxTimeBefore = Math.max(...users.map(user => user.reminderPreferences.timeBefore));
-
-    // Fetch contests starting within the max reminder time
-    const upcomingTime = new Date(currentTime.getTime() + maxTimeBefore * 60 * 1000).toISOString();
-
-    const response = await fetch(
-      `${API_URL}?start__gte=${currentTime.toISOString()}&start__lte=${upcomingTime}&resource__in=codeforces.com,leetcode.com,codechef.com&orderby=start`,
-      { headers: { Authorization: `ApiKey ${API_KEY}` } }
-    );
-
-    if (!response.ok) throw new Error("Failed to fetch contests");
-
-    const data = await response.json();
-    const upcomingContests = data.objects;
-
-    if (upcomingContests.length === 0) return;
+    const users = await User.find({ "reminderPreferences.0": { $exists: true } });
 
     for (const user of users) {
-      for (const contest of upcomingContests) {
-        const contestStart = new Date(contest.start).getTime();
-        const timeBefore = user.reminderPreferences.timeBefore * 60 * 1000;
+      for (const reminder of user.reminderPreferences) {
+        const { contestId, platforms, method, timeBefore, contestTime } = reminder;
 
-        if (contestStart - currentTime.getTime() <= timeBefore) {
-          const uniqueKey = `${user._id}-${contest.id}`;
-          if (notifiedUsers.has(uniqueKey)) continue; // Prevent duplicate reminders
+        if (!contestTime) continue;
 
-          const message = `Reminder: ${contest.event} is starting soon! Visit: ${contest.href}`;
+        const reminderTime = new Date(contestTime);
+        reminderTime.setMinutes(reminderTime.getMinutes() - timeBefore);
 
-          if (user.reminderPreferences.method === "email") {
-            await sendEmail(user.email, "Contest Reminder", message);
-          } else if (user.phoneNumber) {
-            await sendSMS(user.phoneNumber, message);
+        console.log(user.username);
+        console.log(now, reminderTime, contestTime);
+        if (now >= reminderTime && now < contestTime) {
+          if (method === "email" && user.email) {
+            console.log("Sending email reminder...");
+            await sendEmailReminder(user.email, contestId, platforms, contestTime);
+          } else if (method === "sms" && user.phoneNumber) {
+            await sendSMSReminder(user.phoneNumber, contestId, platforms, contestTime);
           }
-
-          notifiedUsers.add(uniqueKey);
         }
       }
     }
+
+    console.log("✅ Reminders processed successfully.");
   } catch (error) {
-    console.error("Error checking upcoming contests:", error);
+    console.error("Error processing reminders:", error.message);
   }
 };
 
-// Schedule the cron job every 10 minutes
-cron.schedule("*/10 * * * *", checkUpcomingContests);
+async function testEmail() {
+  try {
+    const info = await transporter.sendMail({
+      from: "sparsh.sociallife@gmail.com",
+      to: "sparsh.officialwork@gmail.com",
+      subject: "Test Email",
+      text: "This is a test email from your reminder service!",
+    });
+    console.log("Test email sent:", info.response);
+  } catch (error) {
+    console.error("Error sending test email:", error.message);
+  }
+}
 
-module.exports = { checkUpcomingContests };
+
+// Schedule Cron Job to Run Every Minute
+cron.schedule("* * * * *", () => {
+  processReminders();
+  // testEmail();
+});
+
+module.exports = { processReminders };
