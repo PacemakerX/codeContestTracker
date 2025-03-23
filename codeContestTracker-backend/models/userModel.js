@@ -37,23 +37,28 @@ const userSchema = new mongoose.Schema(
         ref: "Contest",
       },
     ],
-    reminderPreferences: {
-      platforms: {
-        type: [String],
-        enum: ["Codeforces", "CodeChef", "Leetcode"],
-        default: [],
+    reminderPreferences: [
+      {
+        contestId: {
+          type: Number,
+        },
+        platforms: {
+          type: [String],
+          enum: ["Codeforces", "CodeChef", "Leetcode"],
+          default: [],
+        },
+        method: {
+          type: String,
+          enum: ["email", "sms"],
+          default: "email",
+        },
+        timeBefore: {
+          type: Number,
+          default: 60,
+        },
       },
-      method: {
-        type: String,
-        enum: ["email", "sms"],
-        default: "email",
-      },
-      timeBefore: {
-        type: Number,
-        default: 60, // Default: 60 minutes before the contest
-      },
-    },
-  },
+    ],
+  },    
   { timestamps: true }
 );
 
@@ -63,7 +68,7 @@ userSchema.statics.register = async function (
   email,
   password,
   phoneNumber,
-  reminderPreferences = {}
+  reminderPreferences
 ) {
   try {
     // Validate email format
