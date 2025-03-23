@@ -1,5 +1,4 @@
 const User = require("../models/userModel");
-const Contest = require("../models/contestModel");
 
 const API_URL = "https://clist.by/api/v4/contest/";
 const API_KEY = process.env.CLIST_API_KEY;
@@ -7,7 +6,6 @@ const API_KEY = process.env.CLIST_API_KEY;
 // Bookmark a contest
 const bookmarkContest = async (req, res) => {
   try {
-    // const contestId = Number(req.params.contestId); 
     const { contestId } = req.params;
     const userId = req.user.id;
 
@@ -18,7 +16,6 @@ const bookmarkContest = async (req, res) => {
       user.bookmarkedContests.push(contestId);
       await user.save();
     }
-
     res.status(200).json({ message: "Contest bookmarked successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
