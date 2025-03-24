@@ -41,6 +41,10 @@ const loginUser = async (req, res) => {
         email: user.email,
         phoneNumber: user.phoneNumber,
         bookmarks: user.bookmarkedContests,
+        reminders: user.reminderPreferences.map(reminder => ({
+          contestId: reminder.contestId,
+          platform: reminder.platform,
+        })),
       },
     });
   } catch (error) {
