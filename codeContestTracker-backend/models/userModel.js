@@ -43,10 +43,10 @@ const userSchema = new mongoose.Schema(
           type: Number,
           required: true,
         },
-        platforms: {
-          type: [String],
+        platform: {
+          type: String,
           enum: ["Codeforces", "CodeChef", "Leetcode"],
-          default: [],
+          required: true,
         },
         method: {
           type: String,
