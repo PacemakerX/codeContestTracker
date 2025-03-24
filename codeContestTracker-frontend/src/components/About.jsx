@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
 const About = () => {
   const [user, setUser] = useState(null);
+  const isAuthenticated = useSelector((state) => !!state.auth.token);
 
   useEffect(() => {
     // Simulating fetching user data (replace with actual API if needed)
@@ -16,7 +18,7 @@ const About = () => {
       <div className="text-xl space-y-8 bg-gray-800/40 p-12 rounded-3xl shadow-2xl border border-gray-700 max-w-4xl w-fullaninmated-fadeIn" style={{ animation: "fadeIn 1s ease-out" }}>
         {/* Dynamic Welcome Statement */}
         <h1 className="text-6xl font-extrabold mb-12 tracking-wide text-blue-500">
-          Welcome, {user?.username || "Coding God"}! 🤖
+          Welcome, {isAuthenticated && user ?user.username: "Coding God"}! 🤖
         </h1>
 
         {/* About Section Content */}
