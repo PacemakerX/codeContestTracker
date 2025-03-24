@@ -1,52 +1,22 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
-const UserProfile = () => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+const Profile = () => {
 
-  // Fetch user data from API using fetch
-  const fetchUserData = async () => {
-    try {
-      const res = await fetch("http://localhost:3030/api/users/profile", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+  const isAuthenticated = useSelector((state) => !!state.auth.token);
+  const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("user"));
 
-      if (!res.ok) {
-        throw new Error("Failed to load user data.");
-      }
-
-      const data = await res.json();
-      console.log(data);
-      setUser(data.user);
-      setLoading(false);
-    } catch (err) {
-      console.error("Error fetching user data:", err);
-      setError("Failed to load user data.");
-      setLoading(false);
-    }
-  };
-
+  // Redirect if no user is found
   useEffect(() => {
-    fetchUserData();
-  }, []);
+    if (!isAuthenticated) {
+      navigate("/");
+    }
+  });
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="text-red-500 text-lg text-center mt-10">{error}</div>
-    );
+  if (!user) {
+    return null; // Prevent rendering if not authenticated
   }
 
   return (
@@ -72,12 +42,6 @@ const UserProfile = () => {
             <span className="font-medium text-2xl">{`+91 ${user?.phoneNumber}`}</span>
           </div>
         </div>
-        <button
-          onClick={fetchUserData}
-          className="mt-12 px-10 py-4 text-xl font-bold text-white bg-gradient-to-r from-blue-600 to-blue-800 hover:scale-105 hover:shadow-2xl transform transition duration-300 rounded-full"
-        >
-          🔄 Refresh Profile
-        </button>
       </div>
 
       {/* Custom fade-in animation */}
@@ -99,4 +63,4 @@ const UserProfile = () => {
   );
 };
 
-export default UserProfile;
+export default Profile;
