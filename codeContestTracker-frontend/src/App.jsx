@@ -12,7 +12,7 @@ function App() {
   return (
     <NotificationProvider> {/* Wrap everything with NotificationProvider */}
       <Router>
-        <div className="flex flex-col min-h-screen bg-gray-900">
+        <div className="flex flex-col min-h-screen bg-gradient-to-br from-gray-900 to-black text-white">
           <Navbar />
           <section className="mb-3 text-center px-4 py-5">
             <h1 className="text-4xl font-bold text-white mb-4">
