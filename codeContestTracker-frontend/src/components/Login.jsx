@@ -2,8 +2,10 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux"; // Import Redux dispatch
 import { loginSuccess } from "../redux/authslice"; // Import action to update Redux state
+import { useNotification } from "../components/ToastNotification"; // Import notification hook
 
 export default function LoginForm() {
+  const { addNotification } = useNotification();
   const [formData, setFormData] = useState({
     emailOrUsername: "",
     password: "",
@@ -41,9 +43,14 @@ export default function LoginForm() {
       const data = await response.json();
       dispatch(loginSuccess({ token: data.token, user: data.user })); // Update Redux state
 
+      addNotification("Login successful!", "success"); // Show success notification
       navigate("/"); // Redirect to dashboard
     } catch (err) {
-      setError(`An error occurred: ${err.message}. Please try again.`);
+      addNotification(
+        err.message || "Login failed. Please try again.",
+        "error"
+      );
+      // setError(`An error occurred: ${err.message}. Please try again.`);
     }
   };
 
