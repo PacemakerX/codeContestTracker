@@ -55,15 +55,15 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="flex items-center justify-center  bg-gray-900 p-4">
-      <div className="w-full max-w-md bg-gray-800 p-8 rounded-lg shadow-lg">
+    <div className="flex items-center justify-center p-4">
+      <div className="w-full max-w-md p-8 rounded-lg shadow-lg">
         <h2 className="text-2xl font-bold text-white mb-6 text-center">
           Login
         </h2>
 
         {error && <p className="text-red-500 text-center">{error}</p>}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 aninmated-fadeIn" style={{ animation: "fadeIn 1s ease-out" }}>
           <input
             type="text"
             name="emailOrUsername"
@@ -92,13 +92,28 @@ export default function LoginForm() {
           </button>
         </form>
 
-        <p className="text-gray-400 text-sm text-center mt-4">
+        <p className="text-gray-400 text-sm text-center mt-4 aninmated-fadeIn" style={{ animation: "fadeIn 1s ease-out" }}>
           Don't have an account?{" "}
           <a href="/signup" className="text-blue-400 hover:underline">
             Sign Up
           </a>
         </p>
       </div>
+      {/* Custom fade-in animation */}
+      <style>
+        {`
+          @keyframes fadeIn {
+            0% {
+              opacity: 0;
+              transform: translateY(-20px);
+            }
+            100% {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+        `}
+      </style>
     </div>
   );
 }

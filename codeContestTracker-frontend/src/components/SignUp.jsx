@@ -39,15 +39,15 @@ export default function SignupForm() {
   };
 
   return (
-    <div className="flex justify-center items-center  bg-gray-900">
-      <div className="w-full max-w-md bg-gray-800 p-8 rounded-lg shadow-lg">
+    <div className="flex justify-center items-center">
+      <div className="w-full max-w-md  p-8 rounded-lg shadow-lg">
         <h2 className="text-2xl font-bold text-white mb-6 text-center">
           Sign Up
         </h2>
 
         {error && <p className="text-red-500 text-center">{error}</p>}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 aninmated-fadeIn" style={{ animation: "fadeIn 1s ease-out" }}>
           <input
             type="text"
             name="username"
@@ -96,6 +96,21 @@ export default function SignupForm() {
           </button>
         </form>
       </div>
+      {/* Custom fade-in animation */}
+      <style>
+        {`
+          @keyframes fadeIn {
+            0% {
+              opacity: 0;
+              transform: translateY(-20px);
+            }
+            100% {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+        `}
+      </style>
     </div>
   );
 }
