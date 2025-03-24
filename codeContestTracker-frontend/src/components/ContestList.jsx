@@ -4,6 +4,7 @@ import CodeforcesLogo from "../assets/codeforces.svg";
 import LeetcodeLogo from "../assets/leetcode.svg";
 import CodechefLogo from "../assets/codechef.svg";
 import BookmarkIcon from "../assets/bookmark.svg";
+import { useNotification } from "../components/ToastNotification"; // Import notification hook
 
 const BASE_URL = "http://localhost:3030";
 
@@ -14,6 +15,7 @@ export default function ContestList() {
   const [isLoading, setIsLoading] = useState(true);
   const [currentTime, setCurrentTime] = useState(new Date());
   const hasFetchedData = useRef(false);
+  const { addNotification } = useNotification();
 
   // Update bookmarks in localStorage after API call
   const updateBookmarksInLocalStorage = (bookmarks) => {
@@ -43,11 +45,21 @@ export default function ContestList() {
           ? user.bookmarks.filter((id) => id !== contestId)
           : [...user.bookmarks, contestId];
 
+        addNotification(
+          isBookmarked
+            ? "Bookmark removed successfully!"
+            : "Bookmark added successfully!",
+          "info"
+        );
         // Update localStorage with new bookmarks
         updateBookmarksInLocalStorage(updatedBookmarks);
       }
-    } catch {
+    } catch (err) {
       // Handle errors silently
+      addNotification(
+        err.message || "Login failed. Please try again.",
+        "error"
+      );
     }
   };
 
@@ -62,7 +74,7 @@ export default function ContestList() {
     "codeforces.com": true,
     "leetcode.com": true,
     "codechef.com": true,
-    bookmark: true, // Add bookmark only if logged in
+    bookmark: true,
   });
 
   useEffect(() => {
