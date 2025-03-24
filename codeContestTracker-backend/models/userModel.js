@@ -45,7 +45,7 @@ const userSchema = new mongoose.Schema(
         },
         platform: {
           type: String,
-          enum: ["Codeforces", "CodeChef", "Leetcode"],
+          enum: ["Codeforces", "Codechef", "Leetcode"],
           required: true,
         },
         method: {
