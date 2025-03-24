@@ -6,7 +6,6 @@ import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 
 const navigation = [
   { name: "Home", href: "/", current: true },
-  { name: "Contests", href: "/contests", current: false },
   { name: "About", href: "/about", current: false },
 ];
 
@@ -23,7 +22,7 @@ export default function Navbar() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="relative flex h-16 items-center justify-between">
           <div className="flex items-center">
-            <Link to="/" className="text-white text-lg font-bold">CodeTracker</Link>
+            <Link to="/" className="text-white text-lg font-bold">CodeContest Tracker</Link>
             <div className="hidden sm:ml-6 sm:block">
               <div className="flex space-x-4">
                 {navigation.map((item) => (
