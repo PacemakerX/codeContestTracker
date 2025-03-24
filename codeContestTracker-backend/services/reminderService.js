@@ -21,12 +21,12 @@ const transporter = nodemailer.createTransport({
 const twilioClient = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
 
 // Send Email Reminder
-const sendEmailReminder = async (email, contestId, platforms, contestTime) => {
+const sendEmailReminder = async (email, contestId, platform, contestTime) => {
   const mailOptions = {
     from: "sparsh.sociallife@gmail.com",
     to: email,
     subject: `Reminder for Contest ${contestId}`,
-    text: `Your contest on ${platforms.join(", ")} is starting at ${contestTime.toLocaleString()}. Best of luck!`,
+    text: `Your contest on ${platform} is starting at ${contestTime.toLocaleString()}. Best of luck!`,
   };
 
   try {
@@ -44,10 +44,8 @@ const formatPhoneNumber = (number) => {
   return number;
 };
 // Send SMS Reminder
-const sendSMSReminder = async (phoneNumber, contestId, platforms, contestTime) => {
-  const messageBody = `Reminder: Your contest on ${platforms.join(
-    ", "
-  )} is starting at ${contestTime.toLocaleString()}. Best of luck!`;
+const sendSMSReminder = async (phoneNumber, contestId, platform, contestTime) => {
+  const messageBody = `Reminder: Your contest on ${platform} is starting at ${contestTime.toLocaleString()}. Best of luck!`;
 
   try {
     const formattedNumber = formatPhoneNumber(phoneNumber);
@@ -73,7 +71,7 @@ const processReminders = async () => {
 
     for (const user of users) {
       for (const reminder of user.reminderPreferences) {
-        const { contestId, platforms, method, timeBefore, contestTime } = reminder;
+        const { contestId, platform, method, timeBefore, contestTime } = reminder;
 
         if (!contestTime) continue;
 
@@ -85,9 +83,9 @@ const processReminders = async () => {
         if (now >= reminderTime && now < contestTime) {
           if (method === "email" && user.email) {
             console.log("Sending email reminder...");
-            await sendEmailReminder(user.email, contestId, platforms, contestTime);
+            await sendEmailReminder(user.email, contestId, platform, contestTime);
           } else if (method === "sms" && user.phoneNumber) {
-            await sendSMSReminder(user.phoneNumber, contestId, platforms, contestTime);
+            await sendSMSReminder(user.phoneNumber, contestId, platform, contestTime);
           }
         }
       }

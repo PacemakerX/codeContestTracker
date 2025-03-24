@@ -4,9 +4,9 @@ const User = require("../models/userModel");
 const addOrUpdateReminder = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { contestId, platforms, method, timeBefore ,contestTime} = req.body;
+    const { contestId, platform, method, timeBefore ,contestTime} = req.body;
 
-    if (!contestId || !platforms || !method || !timeBefore || !contestTime) {
+    if (!contestId || !platform || !method || !timeBefore || !contestTime) {
       return res.status(400).json({ error: "All fields are required." });
     }
 
@@ -23,7 +23,7 @@ const addOrUpdateReminder = async (req, res) => {
       // Update existing reminder
       user.reminderPreferences[existingReminderIndex] = {
         contestId,
-        platforms,
+        platform,
         method,
         timeBefore,
         contestTime,
@@ -32,7 +32,7 @@ const addOrUpdateReminder = async (req, res) => {
       // Add new reminder
       user.reminderPreferences.push({
         contestId,
-        platforms,
+        platform,
         method,
         timeBefore,
         contestTime,
