@@ -68,6 +68,90 @@ export default function ContestList() {
     const currentUser = JSON.parse(localStorage.getItem("user"));
     return currentUser?.bookmarks?.includes(contestId);
   };
+  const updateRemindersInLocalStorage = (reminders) => {
+    if (user) {
+      const updatedUser = { ...user, reminders };
+      setUser(updatedUser); // Update state after changes
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+    }
+  };
+
+  const toggleReminder = async (
+    contestId,
+    platform,
+    method,
+    timeBefore,
+    contestTime
+  ) => {
+    if (!token) return;
+
+    // Check if the reminder already exists
+    const isReminderSet = user?.reminders?.some(
+      (reminder) => reminder.contestId === contestId
+    );
+
+    try {
+      let response;
+      if (isReminderSet) {
+        // DELETE Request to Remove Reminder
+        response = await fetch(`${BASE_URL}/api/reminders/${contestId}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (response.ok) {
+          // Remove reminder from local state
+          const updatedReminders = user.reminders.filter(
+            (reminder) => reminder.contestId !== contestId
+          );
+          updateRemindersInLocalStorage(updatedReminders);
+          addNotification("Reminder removed successfully!", "info");
+        }
+      } else {
+        const requestBody = {
+          contestId,
+          platform,
+          method,
+          timeBefore,
+          contestTime,
+        };
+
+        // POST Request to Add/Update Reminder
+        response = await fetch(`${BASE_URL}/api/reminders/add`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestBody),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const updatedReminders = data.user.reminderPreferences;
+          updateRemindersInLocalStorage(updatedReminders);
+          addNotification("Reminder added successfully!", "info");
+        }
+      }
+    } catch (err) {
+      console.error("Error updating reminder:", err);
+      addNotification(
+        err.message || "Failed to update reminder. Please try again.",
+        "error"
+      );
+    }
+  };
+
+  const isReminderSet = (contestId, platform) => {
+    const currentUser = JSON.parse(localStorage.getItem("user"));
+    return currentUser?.reminders?.some(
+      (reminder) =>
+        reminder.contestId === contestId && reminder.platform === platform
+    );
+  };
 
   // Platform filter state
   const [selectedPlatforms, setSelectedPlatforms] = useState({
@@ -395,15 +479,47 @@ export default function ContestList() {
                     </td>
                     {token && (
                       <td className="p-3 flex justify-center gap-4 w-64">
-                        <button className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded">
-                          ⏰ Set Reminder
+                        <button
+                          onClick={() =>
+                            toggleReminder(
+                              contest.id,
+                              contest.host
+                                .replace(".com", "")
+                                .replace(/^\w/, (c) => c.toUpperCase()),
+                              "email", // or "sms"
+                              60, // Time before contest in minutes
+                              contest.start // Contest start time in ISO format
+                            )
+                          }
+                          className={`px-4 py-2 rounded flex items-center gap-2 transition-colors ${
+                            isReminderSet(
+                              contest.id,
+                              contest.host
+                                .replace(".com", "")
+                                .replace(/^\w/, (c) => c.toUpperCase())
+                            )
+                              ? "bg-yellow-500 hover:bg-yellow-700 text-white"
+                              : "bg-green-500 hover:bg-green-600 text-white"
+                          }`}
+                        >
+                          {isReminderSet(
+                            contest.id,
+                            contest.host
+                              .replace(".com", "")
+                              .replace(/^\w/, (c) => c.toUpperCase())
+                          ) ? (
+                            <>⏰ Remove Reminder</>
+                          ) : (
+                            <>⏰ Set Reminder</>
+                          )}
                         </button>
+
                         <button
                           onClick={() => toggleBookmark(contest.id)}
                           // disabled={bookmarkLoading}
                           className={`px-4 py-2 rounded flex items-center gap-2 transition-colors ${
                             isContestBookmarked(contest.id)
-                              ? "bg-yellow-600 hover:bg-yellow-700 text-white"
+                              ? "bg-yellow-500 hover:bg-yellow-700 text-white"
                               : "bg-blue-500 hover:bg-blue-600 text-white"
                           }`}
                         >
