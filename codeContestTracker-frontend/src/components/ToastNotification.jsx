@@ -79,7 +79,7 @@ const Toast = ({ notification, onClose }) => {
   
   return (
     <div 
-      className={`${styles.bg} ${styles.border} text-white px-6 py-4 rounded-lg shadow-xl max-w-sm w-full
+      className={`${styles.bg} ${styles.border} text-white px-8 py-6 rounded-lg shadow-xl max-w-lg w-full
                   transform transition-all duration-500 ease-in-out flex items-center
                   ${isExiting ? 'opacity-0 translate-x-full' : 'opacity-100 translate-x-0'}`}
     >
@@ -108,7 +108,7 @@ const ToastContainer = () => {
   }
   
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
+    <div className="fixed bottom-20 right-6 z-50 flex flex-col gap-3">
       {notifications.map(notification => (
         <Toast 
           key={notification.id}
