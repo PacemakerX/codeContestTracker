@@ -371,9 +371,9 @@ export default function ContestList() {
       </div>
 
       {isLoading && (
-        <div className="flex justify-center items-center py-4">
-          <div className="w-8 h-8 border-4 border-blue-500 border-solid border-t-transparent rounded-full animate-spin"></div>
-        </div>
+        <div className="flex justify-center items-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"></div>
+      </div>
       )}
 
       {!isLoading && pastContests.length > 0 && (
