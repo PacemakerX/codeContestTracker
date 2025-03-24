@@ -50,7 +50,7 @@ const UserProfile = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 to-black text-white">
+    <div className="flex flex-col items-center justify-center">
       <div
         className="w-full max-w-4xl p-14 text-center opacity-0 animate-fadeIn"
         style={{ animation: "fadeIn 1s ease-out forwards" }}
