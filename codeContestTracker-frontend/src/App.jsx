@@ -5,6 +5,7 @@ import Navbar from "./components/Navbar"; // Adjust path if needed
 import Footer from "./components/Footer"; // Adjust path if needed
 import Login from "./components/Login";
 import Signup from "./components/SignUp";
+import UserProfile from "./components/UserProfile";
 import { NotificationProvider } from "./components/ToastNotification"; // Import the provider
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
               <Route path="/" element={<ContestList />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
+              <Route path="/profile" element={<UserProfile/>} />
             </Routes>
           </main>
           
