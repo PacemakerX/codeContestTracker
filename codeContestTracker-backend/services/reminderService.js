@@ -129,7 +129,7 @@ const processReminders = async () => {
  * Pattern: * * * * *
  * Format: Minute Hour Day Month WeekDay
  */
-cron.schedule("* * * * *", () => {
+cron.schedule("30 * * * *", () => {
   processReminders();
   // Uncomment this to test email separately
   // testEmail();
