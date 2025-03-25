@@ -2,6 +2,17 @@ const userModels = require("../models/userModel");
 const jwt = require("jsonwebtoken");
 const JWT_SECRET = process.env.JWT_SECRET;
 
+/**
+ * Register a new user
+ * @param {Object} req - Express request object
+ * @param {Object} req.body - Request body containing user details
+ * @param {string} req.body.username - User's username
+ * @param {string} req.body.email - User's email address
+ * @param {string} req.body.password - User's password
+ * @param {string} req.body.phoneNumber - User's phone number
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with user data or error message
+ */
 const registerUser = async (req, res) => {
   try {
     const { username, email, password, phoneNumber } = req.body;
@@ -19,6 +30,15 @@ const registerUser = async (req, res) => {
   }
 };
 
+/**
+ * Authenticate and login a user
+ * @param {Object} req - Express request object
+ * @param {Object} req.body - Request body containing login credentials
+ * @param {string} req.body.emailOrUsername - User's email or username
+ * @param {string} req.body.password - User's password
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with JWT token and user data or error message
+ */
 const loginUser = async (req, res) => {
   try {
     const { emailOrUsername, password } = req.body;
@@ -26,13 +46,15 @@ const loginUser = async (req, res) => {
       throw new Error("Invalid login credentials");
     }
 
-    // Fetch user by either email or username
+    // Authenticate user and get user data
     const user = await userModels.login(emailOrUsername, password);
 
+    // Generate JWT token valid for 1 hour
     const token = jwt.sign({ email: user.email, id: user._id }, JWT_SECRET, {
       expiresIn: "1h",
     });
 
+    // Return user data and token
     res.status(200).json({
       message: "Login successful",
       token,
@@ -52,8 +74,17 @@ const loginUser = async (req, res) => {
   }
 };
 
+/**
+ * Get user profile information using JWT token
+ * @param {Object} req - Express request object
+ * @param {Object} req.headers - Request headers
+ * @param {string} req.headers.authorization - Bearer token for authentication
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with user profile data or error message
+ */
 const getUserProfile = async (req, res) => {
   try {
+    // Validate Bearer token format
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res
@@ -61,15 +92,16 @@ const getUserProfile = async (req, res) => {
         .json({ message: "Unauthorized: Missing or invalid token format." });
     }
 
+    // Extract and verify JWT token
     const token = authHeader.split(" ")[1];
     const decoded = jwt.verify(token, JWT_SECRET);
 
     if (!decoded || !decoded.id) {
-      // Fix: Use decoded.id instead of decoded.email
       return res.status(401).json({ message: "Invalid token" });
     }
 
-    const user = await userModels.getUserById(decoded.id); // Fix: Call the correct method
+    // Fetch user profile data
+    const user = await userModels.getUserById(decoded.id);
     if (!user) {
       return res.status(404).json({ message: "User not found." });
     }
@@ -84,9 +116,18 @@ const getUserProfile = async (req, res) => {
   }
 };
 
+/**
+ * Update user profile information
+ * @param {Object} req - Express request object
+ * @param {Object} req.user - User object from JWT authentication middleware
+ * @param {string} req.user.id - User ID
+ * @param {Object} req.body - Request body containing profile updates
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with updated user data or error message
+ */
 const updateUserProfile = async (req, res) => {
   try {
-    const userId = req.user.id; // Assuming user is authenticated via JWT
+    const userId = req.user.id;
     const updates = req.body;
 
     const updatedUser = await userModels.updateProfile(userId, updates);

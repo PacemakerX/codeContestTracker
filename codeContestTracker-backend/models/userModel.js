@@ -2,14 +2,20 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const validator = require("validator");
 
+/**
+ * User Schema Definition
+ * Defines the structure and validation rules for user documents in MongoDB
+ */
 const userSchema = new mongoose.Schema(
   {
+    // Username field - required and must be unique
     username: {
       type: String,
       required: true,
       unique: true,
-      trim: true,
+      trim: true, // Removes whitespace from both ends
     },
+    // Email field - required, unique, and must be valid email format
     email: {
       type: String,
       required: true,
@@ -17,11 +23,13 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       validate: [validator.isEmail, "Invalid email format"],
     },
+    // Password field - required with minimum length of 6 characters
     password: {
       type: String,
       required: true,
       minlength: 6,
     },
+    // Optional phone number field with validation
     phoneNumber: {
       type: String,
       validate: {
@@ -31,12 +39,14 @@ const userSchema = new mongoose.Schema(
         message: "Invalid phone number",
       },
     },
+    // Array of bookmarked contest IDs
     bookmarkedContests: [
       {
         type: Number,
-        ref: "Contest",
+        ref: "Contest", // References the Contest model
       },
     ],
+    // Array of reminder settings for contests
     reminderPreferences: [
       {
         contestId: {
@@ -55,19 +65,28 @@ const userSchema = new mongoose.Schema(
         },
         timeBefore: {
           type: Number,
-          default: 60, // Default: 60 minutes before the contest
+          default: 60, // Minutes before contest to send reminder
         },
         contestTime: {
-          type: Date, // Stores contest start time as Date object
+          type: Date,
           required: true,
         },
       },
-    ],    
-  },    
-  { timestamps: true }
+    ],
+  },
+  { timestamps: true } // Automatically adds createdAt and updatedAt fields
 );
 
-// Static method to register a new user
+/**
+ * Static method to register a new user
+ * @param {string} username - User's chosen username
+ * @param {string} email - User's email address
+ * @param {string} password - User's password (will be hashed)
+ * @param {string} phoneNumber - Optional phone number
+ * @param {Array} reminderPreferences - Optional initial reminder settings
+ * @returns {Promise<Object>} Newly created user object
+ * @throws {Error} If validation fails or user creation fails
+ */
 userSchema.statics.register = async function (
   username,
   email,
@@ -76,12 +95,12 @@ userSchema.statics.register = async function (
   reminderPreferences
 ) {
   try {
-    // Validate email format
+    // Email validation
     if (!validator.isEmail(email)) {
       throw new Error("Invalid email format.");
     }
 
-    // Validate password strength
+    // Password strength validation
     if (
       !validator.isStrongPassword(password, {
         minLength: 8,
@@ -96,7 +115,7 @@ userSchema.statics.register = async function (
       );
     }
 
-    // Validate phone number (if provided)
+    // Phone number validation (if provided)
     if (
       phoneNumber &&
       !validator.isMobilePhone(phoneNumber, "any", { strictMode: false })
@@ -104,11 +123,11 @@ userSchema.statics.register = async function (
       throw new Error("Invalid phone number format.");
     }
 
-    // Hash the password
+    // Password hashing
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Create the user
+    // Create new user instance
     const user = new this({
       username,
       email,
@@ -117,16 +136,21 @@ userSchema.statics.register = async function (
       reminderPreferences,
     });
 
-    // Save to database
     return await user.save();
   } catch (error) {
     throw new Error("Error creating user: " + error.message);
   }
 };
 
+/**
+ * Static method to fetch user by ID
+ * @param {string} userId - MongoDB _id of the user
+ * @returns {Promise<Object>} User object without password
+ * @throws {Error} If user not found or fetch fails
+ */
 userSchema.statics.getUserById = async function (userId) {
   try {
-    const user = await this.findById(userId).select("-password"); // Exclude password
+    const user = await this.findById(userId).select("-password");
     if (!user) {
       throw new Error("User not found.");
     }
@@ -136,12 +160,19 @@ userSchema.statics.getUserById = async function (userId) {
   }
 };
 
+/**
+ * Static method to authenticate user login
+ * @param {string} emailOrUsername - User's email or username
+ * @param {string} password - User's password
+ * @returns {Promise<Object>} User object without password
+ * @throws {Error} If authentication fails
+ */
 userSchema.statics.login = async function (emailOrUsername, password) {
   try {
-    // Determine if input is an email or username
+    // Check if input is email or username
     const isEmail = validator.isEmail(emailOrUsername);
 
-    // Find user by email or username
+    // Find user in database
     const user = await this.findOne(
       isEmail ? { email: emailOrUsername } : { username: emailOrUsername }
     );
@@ -150,13 +181,13 @@ userSchema.statics.login = async function (emailOrUsername, password) {
       throw new Error("User not found.");
     }
 
-    // Compare password with hashed password in DB
+    // Verify password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       throw new Error("Invalid credentials.");
     }
 
-    // Return user without password
+    // Remove password from response
     const userObject = user.toObject();
     delete userObject.password;
     return userObject;
@@ -165,6 +196,13 @@ userSchema.statics.login = async function (emailOrUsername, password) {
   }
 };
 
+/**
+ * Static method to update user profile
+ * @param {string} userId - MongoDB _id of the user
+ * @param {Object} updates - Object containing fields to update
+ * @returns {Promise<Object>} Updated user object
+ * @throws {Error} If update fails
+ */
 userSchema.statics.updateProfile = async function (userId, updates) {
   try {
     const user = await this.findById(userId);
@@ -172,6 +210,7 @@ userSchema.statics.updateProfile = async function (userId, updates) {
       throw new Error("User not found.");
     }
 
+    // Update only provided fields
     Object.keys(updates).forEach((key) => {
       if (updates[key] !== undefined) {
         user[key] = updates[key];
@@ -185,5 +224,6 @@ userSchema.statics.updateProfile = async function (userId, updates) {
   }
 };
 
+// Create and export the User model
 const userModel = mongoose.model("User", userSchema);
 module.exports = userModel;
