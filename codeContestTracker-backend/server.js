@@ -65,5 +65,10 @@ app.use("/api/reminders", reminderRoutes);
  * Listen on the specified port from environment variables
  */
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+  const baseUrl =
+  process.env.NODE_ENV === "production"
+    ? "https://codecontesttracker.onrender.com" // Deployed URL
+    : `http://localhost:${port}`; // Local URL during development
+
+console.log(`Server is running at ${baseUrl}`);
 });
