@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux"; // Import Redux dispatch
 import { loginSuccess } from "../redux/authslice"; // Import action to update Redux state
 import { useNotification } from "../components/ToastNotification"; // Import notification hook
-
+import { Eye, EyeOff } from "lucide-react";
 export default function LoginForm() {
   const { addNotification } = useNotification();
   const [formData, setFormData] = useState({
@@ -11,6 +11,7 @@ export default function LoginForm() {
     password: "",
   });
 
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const dispatch = useDispatch(); // Redux dispatch function
@@ -63,7 +64,11 @@ export default function LoginForm() {
 
         {error && <p className="text-red-500 text-center">{error}</p>}
 
-        <form onSubmit={handleSubmit} className="space-y-4 aninmated-fadeIn" style={{ animation: "fadeIn 1s ease-out" }}>
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-4 aninmated-fadeIn"
+          style={{ animation: "fadeIn 1s ease-out" }}
+        >
           <input
             type="text"
             name="emailOrUsername"
@@ -74,15 +79,24 @@ export default function LoginForm() {
             className="w-full p-3 bg-gray-700 text-white border border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500"
           />
 
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-            className="w-full p-3 bg-gray-700 text-white border border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500"
-          />
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              placeholder="Password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              className="w-full p-3 bg-gray-700 text-white border border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
+          </div>
 
           <button
             type="submit"
@@ -92,7 +106,10 @@ export default function LoginForm() {
           </button>
         </form>
 
-        <p className="text-gray-400 text-sm text-center mt-4 aninmated-fadeIn" style={{ animation: "fadeIn 1s ease-out" }}>
+        <p
+          className="text-gray-400 text-sm text-center mt-4 aninmated-fadeIn"
+          style={{ animation: "fadeIn 1s ease-out" }}
+        >
           Don't have an account?{" "}
           <a href="/signup" className="text-blue-400 hover:underline">
             Sign Up
