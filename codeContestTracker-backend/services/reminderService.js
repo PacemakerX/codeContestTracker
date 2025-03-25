@@ -2,19 +2,21 @@ const User = require("../models/userModel");
 const nodemailer = require("nodemailer");
 const cron = require("node-cron");
 
+const userEmail = process.env.EMAIL_USER;
+const userPass = process.env.EMAIL_PASS;
 // Email Configuration using Nodemailer
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: "sparsh.sociallife@gmail.com",
-    pass: "tine prqd vxik bycc",
+    user: userEmail,
+    pass: userPass,
   },
 });
 
 // Send Email Reminder
 const sendEmailReminder = async (email, contestId, platform, contestTime) => {
   const mailOptions = {
-    from: "sparsh.sociallife@gmail.com",
+    from: userEmail,
     to: email,
     subject: `🚨 Reminder: Upcoming ${platform} Contest (ID: ${contestId}) Starts Soon!`,
     text: `Hello Champion! 🎯
