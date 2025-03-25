@@ -136,14 +136,14 @@ export default function SignupFlow() {
 
   const renderEmailStep = () => (
     <div className="flex justify-center items-center">
-      <div className="w-full max-w-md p-8 rounded-lg shadow-lg">
+      <div className="w-full max-w-md p-8 rounded-lg shadow-lg animated-fadeIn">
         <h2 className="text-2xl font-bold text-white mb-6 text-center">
           Enter Your Email
         </h2>
         {error && <p className="text-red-500 text-center mb-4">{error}</p>}
         <form
           onSubmit={handleEmailSubmit}
-          className="space-y-4 animated-fadeIn"
+          className="space-y-4"
         >
           <input
             type="email"
@@ -162,12 +162,29 @@ export default function SignupFlow() {
           </button>
         </form>
       </div>
+      <style>
+        {`
+          @keyframes fadeIn {
+            0% {
+              opacity: 0;
+              transform: translateY(-20px);
+            }
+            100% {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+          .animated-fadeIn {
+            animation: fadeIn 1s ease-out;
+          }
+        `}
+      </style>
     </div>
   );
 
   const renderOTPStep = () => (
     <div className="flex justify-center items-center">
-      <div className="w-full max-w-md p-8 rounded-lg shadow-lg text-center">
+      <div className="w-full max-w-md p-8 rounded-lg shadow-lg text-center animated-fadeIn">
         <h2 className="text-2xl font-bold text-white mb-6">Verify OTP</h2>
         <p className="text-gray-400 mb-4">
           We've sent a 6-digit OTP to{" "}
@@ -175,7 +192,7 @@ export default function SignupFlow() {
           it below.
         </p>
         {error && <p className="text-red-500 mb-4">{error}</p>}
-        <form onSubmit={handleOTPVerify} className="space-y-4 animated-fadeIn">
+        <form onSubmit={handleOTPVerify} className="space-y-4">
           <div className="flex justify-center space-x-2">
             {[...Array(6)].map((_, index) => (
               <input
@@ -231,13 +248,30 @@ export default function SignupFlow() {
           </div>
         </form>
       </div>
+      <style>
+        {`
+          @keyframes fadeIn {
+            0% {
+              opacity: 0;
+              transform: translateY(-20px);
+            }
+            100% {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+          .animated-fadeIn {
+            animation: fadeIn 1s ease-out;
+          }
+        `}
+      </style>
     </div>
   );
 
   const renderDetailsStep = () => (
     <div className="flex justify-center items-center">
       <div className="w-full max-w-md p-8 rounded-lg shadow-lg">
-        <h2 className="text-2xl font-bold text-white mb-6 text-center">
+        <h2 className="text-2xl font-bold text-white mb-6 text-center animated-fadeIn">
           Complete Your Profile
         </h2>
         {error && <p className="text-red-500 text-center mb-4">{error}</p>}
