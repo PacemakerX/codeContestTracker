@@ -4,6 +4,9 @@ import { useDispatch } from "react-redux"; // Import Redux dispatch
 import { loginSuccess } from "../redux/authslice"; // Import action to update Redux state
 import { useNotification } from "../components/ToastNotification"; // Import notification hook
 import { Eye, EyeOff } from "lucide-react";
+import dotenv from 'dotenv';
+dotenv.config();
+const BASE_URL= process.env.REACT_APP_BASE_URL;
 export default function LoginForm() {
   const { addNotification } = useNotification();
   const [formData, setFormData] = useState({
@@ -25,7 +28,7 @@ export default function LoginForm() {
     setError(null);
 
     try {
-      const response = await fetch("http://localhost:3030/api/users/login", {
+      const response = await fetch(`${BASE_URL}/api/users/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
