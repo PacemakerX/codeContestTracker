@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useDispatch } from "react-redux"; // Import Redux dispatch
 import { loginSuccess } from "../redux/authslice"; // Import action to update Redux state
 import { useNotification } from "../components/ToastNotification"; // Import notification hook
@@ -114,9 +114,9 @@ export default function LoginForm() {
           style={{ animation: "fadeIn 1s ease-out" }}
         >
           Don't have an account?{" "}
-          <a href="/signup" className="text-blue-400 hover:underline">
+          <Link to="/signup" className="text-blue-400 hover:underline">
             Sign Up
-          </a>
+          </Link>
         </p>
       </div>
       {/* Custom fade-in animation */}
