@@ -3,3 +3,4 @@
 
 /codeContestTracker-frontend/node_modules
 /codeContestTracker-frontend/.env
+/codeContestTracker-frontend/dist
