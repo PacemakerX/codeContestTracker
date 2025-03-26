@@ -5,11 +5,8 @@ import LeetcodeLogo from "../assets/leetcode.svg";
 import CodechefLogo from "../assets/codechef.svg";
 import BookmarkIcon from "../assets/bookmark.svg";
 import { useNotification } from "../components/ToastNotification"; // Import notification hook
-import dotenv from 'dotenv';
-dotenv.config();
-// const BASE_URL = "https://codecontesttracker.onrender.com";
-const BASE_URL= process.env.VITE_BASE_URL;
 
+const BASE_URL = "https://apicodecontesttrackerbackend.onrender.com";
 export default function ContestList() {
   const { token } = useSelector((state) => state.auth);
   const [user, setUser] = useState(null);

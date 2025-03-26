@@ -17,6 +17,8 @@ export default function SignupFlow() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
+  
+const BASE_URL = "https://apicodecontesttrackerbackend.onrender.com";
 
   const validateEmail = (email) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -44,7 +46,7 @@ export default function SignupFlow() {
 
     try {
       // Call OTP send endpoint
-      const response = await fetch("http://localhost:3030/api/users/send-otp", {
+      const response = await fetch(`${BASE_URL}/api/users/send-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: formData.email }),
@@ -71,7 +73,7 @@ export default function SignupFlow() {
     e.preventDefault();
     try {
       const response = await fetch(
-        "http://localhost:3030/api/users/verify-otp",
+        `${BASE_URL}/api/users/verify-otp`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -112,7 +114,7 @@ export default function SignupFlow() {
     }
 
     try {
-      const response = await fetch("http://localhost:3030/api/users/register", {
+      const response = await fetch(`${BASE_URL}/api/users/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

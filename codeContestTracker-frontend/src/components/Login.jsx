@@ -4,9 +4,9 @@ import { useDispatch } from "react-redux"; // Import Redux dispatch
 import { loginSuccess } from "../redux/authslice"; // Import action to update Redux state
 import { useNotification } from "../components/ToastNotification"; // Import notification hook
 import { Eye, EyeOff } from "lucide-react";
-import dotenv from 'dotenv';
-dotenv.config();
-const BASE_URL= process.env.VITE_BASE_URL;
+
+const BASE_URL = "https://apicodecontesttrackerbackend.onrender.com";
+
 export default function LoginForm() {
   const { addNotification } = useNotification();
   const [formData, setFormData] = useState({
