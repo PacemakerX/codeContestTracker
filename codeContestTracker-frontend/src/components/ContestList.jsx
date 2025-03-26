@@ -8,7 +8,7 @@ import { useNotification } from "../components/ToastNotification"; // Import not
 import dotenv from 'dotenv';
 dotenv.config();
 // const BASE_URL = "https://codecontesttracker.onrender.com";
-const BASE_URL= process.env.REACT_APP_BASE_URL;
+const BASE_URL= process.env.VITE_BASE_URL;
 
 export default function ContestList() {
   const { token } = useSelector((state) => state.auth);
