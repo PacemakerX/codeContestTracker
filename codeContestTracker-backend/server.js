@@ -13,6 +13,7 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 const rateLimit = require("express-rate-limit");
+const path = require("path");
 require("dotenv").config();
 
 // Environment variables
@@ -59,6 +60,16 @@ app.use("/api/users", userRoutes);
 app.use("/api/contests", contestRoutes);
 app.use("/api/bookmarks", bookmarkRoutes);
 app.use("/api/reminders", reminderRoutes);
+
+// Serve React frontend in production
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../codeContestTracker-frontend/dist")));
+
+  // Serve index.html for any unknown routes
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../codeContestTracker-frontend/dist", "index.html"));
+  });
+}
 
 /**
  * Start the server
