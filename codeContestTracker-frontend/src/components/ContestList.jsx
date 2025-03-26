@@ -265,16 +265,25 @@ export default function ContestList() {
 
   // Handle "Select All" toggle
   const toggleAllPlatforms = () => {
-    const allSelected = Object.values(selectedPlatforms).every(
-      (value) => value
-    );
-    setSelectedPlatforms({
-      "codeforces.com": !allSelected,
-      "leetcode.com": !allSelected,
-      "codechef.com": !allSelected,
-      bookmark: !allSelected,
-    });
-  };
+    const allSelected = Object.values(selectedPlatforms).every((value) => value);
+  
+    // If all are selected, uncheck all, otherwise check all
+    if (allSelected) {
+      setSelectedPlatforms({
+        "codeforces.com": false,
+        "leetcode.com": false,
+        "codechef.com": false,
+        bookmark: false,
+      });
+    } else {
+      setSelectedPlatforms({
+        "codeforces.com": true,
+        "leetcode.com": true,
+        "codechef.com": true,
+        bookmark: true,
+      });
+    }
+  };  
 
   const filteredContests = contests.filter((contest) => {
     // Get the contest ID (try both _id and id to be safe)
