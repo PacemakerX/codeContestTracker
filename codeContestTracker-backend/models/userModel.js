@@ -71,6 +71,23 @@ const userSchema = new mongoose.Schema(
         },
       },
     ],
+    // Array of user notes for contests
+    notes: [
+      {
+        contestId: {
+          type: String,
+          required: true,
+        },
+        note: {
+          type: String,
+          required: true,
+        },
+        createdAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
   },
   { timestamps: true } // Automatically adds createdAt and updatedAt fields
 );

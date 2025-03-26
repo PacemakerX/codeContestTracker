@@ -8,6 +8,7 @@ const {
 const router = express.Router();
 const OTPController = require("../controllers/otpController.js");
 const ContactController = require("../controllers/contactController");
+const { getNote, addOrUpdateNote } = require("../controllers/noteController");
 
 const authenticate = require("../middleware/authMiddleware");
 // Route for user registration
@@ -40,5 +41,15 @@ router.post("/verify-otp", OTPController.verifyOTP);
 // POST /api/users/contact
 // Public access - sends user's message to site admin
 router.post("/contact", ContactController.submitContactForm);
+
+// Route to update user profile information
+// PUT /api/users/profile
+
+router.get("/note/:contestId", authenticate, getNote);
+
+// Route to update user profile information
+// PUT /api/users/profile
+// Private access - requires authentication token
+router.post("/note", authenticate, addOrUpdateNote);
 
 module.exports = router;

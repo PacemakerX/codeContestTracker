@@ -1,36 +1,69 @@
 import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
+// Import logos and icons
 import CodeforcesLogo from "../assets/codeforces.svg";
 import LeetcodeLogo from "../assets/leetcode.svg";
 import CodechefLogo from "../assets/codechef.svg";
 import BookmarkIcon from "../assets/bookmark.svg";
-import { useNotification } from "../components/ToastNotification"; // Import notification hook
+// Import components and utilities
+import { useNotification } from "../components/ToastNotification";
+import ContestNotesModal from "./ContestNotes";
 
+// API base URL
 const BASE_URL = "https://apicodecontesttrackerbackend.onrender.com";
+
 export default function ContestList() {
+  // Redux state
   const { token } = useSelector((state) => state.auth);
+
+  // State management
   const [user, setUser] = useState(null);
   const [contests, setContests] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentTime, setCurrentTime] = useState(new Date());
+
+  // Refs
   const hasFetchedData = useRef(false);
+
+  // Custom hooks
   const { addNotification } = useNotification();
 
-  // Update bookmarks in localStorage after API call
+  // Modal state management
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedContestId, setSelectedContestId] = useState(null);
+
+  // Modal handlers
+  const handleAddNote = (contestId) => {
+    setSelectedContestId(contestId);
+    setIsModalOpen(true);
+  };
+  // Modal Management
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedContestId(null);
+  };
+
+  // Local Storage Management Functions
   const updateBookmarksInLocalStorage = (bookmarks) => {
     if (user) {
       const updatedUser = { ...user, bookmarks };
-      setUser(updatedUser); // Update state after changes
+      setUser(updatedUser); // Update state
       localStorage.setItem("user", JSON.stringify(updatedUser));
     }
   };
 
-  // Toggle bookmark for a contest
+  /**
+   * Toggles bookmark status for a contest
+   * @param {number} contestId - The ID of the contest to bookmark/unbookmark
+   */
   const toggleBookmark = async (contestId) => {
+    // Return early if user is not authenticated
     if (!token) return;
 
     const isBookmarked = user?.bookmarks?.includes(contestId);
+
     try {
+      // Make API request to toggle bookmark
       const response = await fetch(`${BASE_URL}/api/bookmarks/${contestId}`, {
         method: isBookmarked ? "DELETE" : "POST",
         headers: {
@@ -40,41 +73,68 @@ export default function ContestList() {
       });
 
       if (response.ok) {
+        // Update bookmarks locally
         const updatedBookmarks = isBookmarked
           ? user.bookmarks.filter((id) => id !== contestId)
           : [...user.bookmarks, contestId];
 
-        addNotification(
-          isBookmarked
-            ? "Bookmark removed successfully!"
-            : "Bookmark added successfully!",
-          "info"
-        );
-        // Update localStorage with new bookmarks
+        // Show success notification
+        const message = isBookmarked
+          ? "Bookmark removed successfully!"
+          : "Bookmark added successfully!";
+        addNotification(message, "info");
+
+        // Update local storage
         updateBookmarksInLocalStorage(updatedBookmarks);
       }
     } catch (err) {
-      // Handle errors silently
-      addNotification(
-        err.message || "Login failed. Please try again.",
-        "error"
-      );
+      // Show error notification
+      addNotification(err.message || "Failed to update bookmark.", "error");
     }
   };
 
   // Check if a contest is bookmarked
-  const isContestBookmarked = (contestId) => {
-    const currentUser = JSON.parse(localStorage.getItem("user"));
-    return currentUser?.bookmarks?.includes(contestId);
-  };
+  // Helper Functions for Local Storage
   const updateRemindersInLocalStorage = (reminders) => {
     if (user) {
       const updatedUser = { ...user, reminders };
-      setUser(updatedUser); // Update state after changes
+      setUser(updatedUser);
       localStorage.setItem("user", JSON.stringify(updatedUser));
     }
   };
 
+  /**
+   * Check if a contest is bookmarked by the current user
+   * @param {number} contestId - The ID of the contest to check
+   * @returns {boolean} - True if the contest is bookmarked, false otherwise
+   */
+  const isContestBookmarked = (contestId) => {
+    const currentUser = JSON.parse(localStorage.getItem("user"));
+    return currentUser?.bookmarks?.includes(contestId);
+  };
+
+  /**
+   * Check if a reminder is set for a specific contest
+   * @param {number} contestId - The ID of the contest
+   * @param {string} platform - The platform name (e.g., "Codeforces", "Leetcode")
+   * @returns {boolean} - True if a reminder exists, false otherwise
+   */
+  const isReminderSet = (contestId, platform) => {
+    const currentUser = JSON.parse(localStorage.getItem("user"));
+    return currentUser?.reminders?.some(
+      (reminder) =>
+        reminder.contestId === contestId && reminder.platform === platform
+    );
+  };
+
+  /**
+   * Toggle reminder status for a contest
+   * @param {number} contestId - The ID of the contest
+   * @param {string} platform - Platform name
+   * @param {string} method - Notification method ("email" or "sms")
+   * @param {number} timeBefore - Minutes before contest to send reminder
+   * @param {string} contestTime - Contest start time in ISO format
+   */
   const toggleReminder = async (
     contestId,
     platform,
@@ -84,15 +144,15 @@ export default function ContestList() {
   ) => {
     if (!token) return;
 
-    // Check if the reminder already exists
     const isReminderSet = user?.reminders?.some(
       (reminder) => reminder.contestId === contestId
     );
 
     try {
       let response;
+
       if (isReminderSet) {
-        // DELETE Request to Remove Reminder
+        // Remove existing reminder
         response = await fetch(`${BASE_URL}/api/reminders/${contestId}`, {
           method: "DELETE",
           headers: {
@@ -102,7 +162,6 @@ export default function ContestList() {
         });
 
         if (response.ok) {
-          // Remove reminder from local state
           const updatedReminders = user.reminders.filter(
             (reminder) => reminder.contestId !== contestId
           );
@@ -110,6 +169,7 @@ export default function ContestList() {
           addNotification("Reminder removed successfully!", "info");
         }
       } else {
+        // Add new reminder
         const requestBody = {
           contestId,
           platform,
@@ -118,7 +178,6 @@ export default function ContestList() {
           contestTime,
         };
 
-        // POST Request to Add/Update Reminder
         response = await fetch(`${BASE_URL}/api/reminders/add`, {
           method: "POST",
           headers: {
@@ -130,13 +189,11 @@ export default function ContestList() {
 
         if (response.ok) {
           const data = await response.json();
-          const updatedReminders = data.user.reminderPreferences;
-          updateRemindersInLocalStorage(updatedReminders);
+          updateRemindersInLocalStorage(data.user.reminderPreferences);
           addNotification("Reminder added successfully!", "info");
         }
       }
     } catch (err) {
-      console.error("Error updating reminder:", err);
       addNotification(
         err.message || "Failed to update reminder. Please try again.",
         "error"
@@ -144,15 +201,8 @@ export default function ContestList() {
     }
   };
 
-  const isReminderSet = (contestId, platform) => {
-    const currentUser = JSON.parse(localStorage.getItem("user"));
-    return currentUser?.reminders?.some(
-      (reminder) =>
-        reminder.contestId === contestId && reminder.platform === platform
-    );
-  };
-
   // Platform filter state
+  // Platform filter state with default values
   const [selectedPlatforms, setSelectedPlatforms] = useState({
     "codeforces.com": true,
     "leetcode.com": true,
@@ -160,52 +210,7 @@ export default function ContestList() {
     bookmark: true,
   });
 
-  useEffect(() => {
-    if (!hasFetchedData.current) {
-      fetchContests();
-      hasFetchedData.current = true;
-    }
-  }, []);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-  }, []);
-
-  const fetchContests = async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetch(`${BASE_URL}/api/contests`);
-      const data = await response.json();
-
-      // Process the contests data to adjust timezone information
-      const processedData = data.map((contest) => {
-        const adjustedContest = { ...contest };
-        const originalDate = new Date(contest.start);
-        originalDate.setTime(originalDate.getTime() + 5.5 * 60 * 60 * 1000);
-        adjustedContest.start = originalDate.toISOString();
-
-        return adjustedContest;
-      });
-
-      setContests(processedData);
-    } catch {
-      // Error handling without console.log
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Format date to show in Indian format with IST label
+  // Date formatting utilities
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     const options = {
@@ -215,7 +220,6 @@ export default function ContestList() {
       hour: "2-digit",
       minute: "2-digit",
     };
-
     return date.toLocaleString("en-IN", options) + " IST";
   };
 
@@ -239,6 +243,62 @@ export default function ContestList() {
     return countdown;
   };
 
+  // API fetch function
+  const fetchContests = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(`${BASE_URL}/api/contests`);
+      const data = await response.json();
+
+      // Adjust timezone to IST (+5:30)
+      const processedData = data.map((contest) => {
+        const adjustedContest = { ...contest };
+        const originalDate = new Date(contest.start);
+        originalDate.setTime(originalDate.getTime() + 5.5 * 60 * 60 * 1000);
+        adjustedContest.start = originalDate.toISOString();
+        return adjustedContest;
+      });
+
+      setContests(processedData);
+    } catch {
+      // Silent error handling
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  // =================== Effect Hooks ===================
+
+  // Initial contest data fetch on component mount
+  useEffect(() => {
+    if (!hasFetchedData.current) {
+      fetchContests();
+      hasFetchedData.current = true;
+    }
+  }, []);
+
+  // Update countdown timer every second
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Load user data from localStorage on component mount
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
+
+  // =================== UI Helper Functions ===================
+
+  /**
+   * Returns the appropriate logo component for a given platform
+   * @param {string} host - The platform hostname
+   * @returns {JSX.Element} - Logo component or default icon
+   */
   const getPlatformLogo = (host) => {
     const platformLogos = {
       "codeforces.com": (
@@ -251,11 +311,15 @@ export default function ContestList() {
         <img src={CodechefLogo} alt="Codechef" className="w-6 h-6" />
       ),
     };
-
     return platformLogos[host] || <span className="text-xl">🖥️</span>;
   };
 
-  // Handle platform selection toggle
+  // =================== Platform Filter Functions ===================
+
+  /**
+   * Toggles the selection state of a single platform
+   * @param {string} platform - Platform to toggle
+   */
   const togglePlatform = (platform) => {
     setSelectedPlatforms((prev) => ({
       ...prev,
@@ -263,44 +327,43 @@ export default function ContestList() {
     }));
   };
 
-  // Handle "Select All" toggle
+  /**
+   * Toggles all platforms selection state
+   */
   const toggleAllPlatforms = () => {
-    const allSelected = Object.values(selectedPlatforms).every((value) => value);
-  
-    // If all are selected, uncheck all, otherwise check all
-    if (allSelected) {
-      setSelectedPlatforms({
-        "codeforces.com": false,
-        "leetcode.com": false,
-        "codechef.com": false,
-        bookmark: false,
-      });
-    } else {
-      setSelectedPlatforms({
-        "codeforces.com": true,
-        "leetcode.com": true,
-        "codechef.com": true,
-        bookmark: true,
-      });
-    }
-  };  
+    const allSelected = Object.values(selectedPlatforms).every(
+      (value) => value
+    );
+    const newState = {
+      "codeforces.com": !allSelected,
+      "leetcode.com": !allSelected,
+      "codechef.com": !allSelected,
+      bookmark: !allSelected,
+    };
+    setSelectedPlatforms(newState);
+  };
 
+  // =================== Contest Filtering Logic ===================
+
+  /**
+   * Filter contests based on selected platforms and bookmarks
+   */
   const filteredContests = contests.filter((contest) => {
-    // Get the contest ID (try both _id and id to be safe)
     const contestId = contest._id || contest.id;
 
-    // Check if "bookmark" filter is selected and contest is bookmarked
+    // Show bookmarked contests if bookmark filter is selected
     if (
       selectedPlatforms["bookmark"] &&
       user?.bookmarks?.includes(Number(contestId))
     ) {
-      return true; // Show bookmarked contests
+      return true;
     }
 
-    // Otherwise, filter based on selected platforms
+    // Filter by platform selection
     return selectedPlatforms[contest.host] === true;
   });
 
+  // Separate contests into past and upcoming
   const now = new Date();
   const pastContests = filteredContests.filter(
     (contest) => new Date(contest.start) < now
@@ -424,18 +487,30 @@ export default function ContestList() {
                         {contest.event}
                       </a>
                     </td>
-                    <td className="p-3 flex justify-center">
+                    <td className="p-3 flex justify-center gap-4">
                       {/* YouTube solution button - visible to all users */}
-                      <a
-                        href={`https://www.youtube.com/results?search_query=${encodeURIComponent(
-                          contest.event + " solutions"
-                        )}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded flex items-center gap-2"
+                      <button
+                        onClick={() =>
+                          window.open(
+                            `https://www.youtube.com/results?search_query=${encodeURIComponent(
+                              contest.event + " solutions"
+                            )}`,
+                            "_blank",
+                            "noopener,noreferrer"
+                          )
+                        }
+                        className="px-4 py-2 rounded flex items-center gap-2 transition-colors bg-red-600 hover:bg-red-700 text-white"
                       >
-                        <span>▶️</span> Watch Solutions
-                      </a>
+                        ▶️ Watch Solutions
+                      </button>
+                      {token && (
+                        <button
+                          onClick={() => handleAddNote(contest.id)}
+                          className="px-4 py-2 rounded flex items-center gap-2 transition-colors bg-blue-500 hover:bg-blue-600 text-white"
+                        >
+                          📝 Add Note
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -556,6 +631,13 @@ export default function ContestList() {
             Try selecting different platforms or check back later.
           </p>
         </div>
+      )}
+      {isModalOpen && (
+        <ContestNotesModal
+          contestId={selectedContestId}
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+        />
       )}
     </div>
   );
