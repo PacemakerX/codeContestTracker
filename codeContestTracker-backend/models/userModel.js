@@ -12,14 +12,12 @@ const userSchema = new mongoose.Schema(
     username: {
       type: String,
       required: true,
-      unique: true,
       trim: true, // Removes whitespace from both ends
     },
     // Email field - required, unique, and must be valid email format
     email: {
       type: String,
       required: true,
-      unique: true,
       lowercase: true,
       validate: [validator.isEmail, "Invalid email format"],
     },
