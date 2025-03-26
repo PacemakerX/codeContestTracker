@@ -4,6 +4,9 @@ import React, { useState, useEffect } from "react";
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
 
+// API base URL
+const BASE_URL = "https://apicodecontesttrackerbackend.onrender.com";
+
 /**
  * ContestNotesModal Component
  * Displays a modal for managing contest-specific notes
@@ -30,7 +33,7 @@ const ContestNotesModal = ({ contestId, isOpen, onClose }) => {
 
           // API call to fetch existing note
           const response = await fetch(
-            `http://localhost:3030/api/users/note/${contestId}`,
+            `${BASE_URL}/api/users/note/${contestId}`,
             {
               method: "GET",
               headers: {
@@ -70,7 +73,7 @@ const ContestNotesModal = ({ contestId, isOpen, onClose }) => {
       const token = localStorage.getItem("token");
 
       // Make API request to save note
-      const response = await fetch("http://localhost:3030/api/users/note", {
+      const response = await fetch(`${BASE_URL}/api/users/note`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
