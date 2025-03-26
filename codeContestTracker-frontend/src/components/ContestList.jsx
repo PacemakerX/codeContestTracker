@@ -443,8 +443,8 @@ export default function ContestList() {
 
       {isLoading && (
         <div className="flex justify-center items-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"></div>
-        </div>
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"></div>
+      </div>
       )}
 
       {!isLoading && pastContests.length > 0 && (
@@ -453,7 +453,7 @@ export default function ContestList() {
             Past Contests
           </h3>
           <div className="overflow-x-auto">
-            <table className="w-full bg</div>-gray-800 rounded-lg shadow">
+            <table className="w-full bg-gray-800 rounded-lg shadow">
               <thead>
                 <tr className="bg-gray-900 text-white">
                   <th className="p-3 text-left">Status</th>
@@ -466,7 +466,7 @@ export default function ContestList() {
                 {pastContests.map((contest) => (
                   <tr
                     key={contest.id}
-                    className="b</tr>order-b border-gray-700 hover:bg-gray-700"
+                    className="border-b border-gray-700 hover:bg-gray-700"
                   >
                     <td className="p-3 text-gray-300">
                       {new Date(contest.start) > now ? "Ongoing" : "Finished"}
