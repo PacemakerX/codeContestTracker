@@ -51,7 +51,9 @@ const sendEmailReminder = async (email, contestId, platform, contestTime) => {
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log(`📧 Email sent successfully to ${email} for contest ${contestId}`);
+    console.log(
+      `📧 Email sent successfully to ${email} for contest ${contestId}`
+    );
   } catch (error) {
     console.error(`❌ Error sending email to ${email}:`, error.message);
   }
@@ -76,7 +78,8 @@ const processReminders = async () => {
     // Iterate through each user and their reminder preferences
     for (const user of users) {
       for (const reminder of user.reminderPreferences) {
-        const { contestId, platform, method, timeBefore, contestTime } = reminder;
+        const { contestId, platform, method, timeBefore, contestTime } =
+          reminder;
 
         // Skip if contest time is not set
         if (!contestTime) continue;
@@ -95,7 +98,7 @@ const processReminders = async () => {
         // Check if current time falls within the reminder window
         if (nowIST >= reminderTimeIST && nowIST < contestTimeIST) {
           console.log(`✅ Time to send a reminder for ${user.username}!`);
-          
+
           // Send email reminder if method is email and user has email
           if (method === "email" && user.email) {
             await sendEmailReminder(
@@ -104,7 +107,7 @@ const processReminders = async () => {
               platform,
               contestTimeIST
             );
-          } 
+          }
           // SMS reminder functionality (placeholder for future implementation)
           else if (method === "sms" && user.phoneNumber) {
             await sendSMSReminder(
@@ -129,10 +132,9 @@ const processReminders = async () => {
  * Pattern: * * * * *
  * Format: Minute Hour Day Month WeekDay
  */
-cron.schedule("/30 * * * *", () => {
+cron.schedule("*/30 * * * *", () => {
   processReminders();
-  // Uncomment this to test email separately
-  // testEmail();
+  
 });
 
 module.exports = { processReminders };
