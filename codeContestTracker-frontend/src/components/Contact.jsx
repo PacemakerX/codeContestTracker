@@ -94,7 +94,7 @@ const ContactComponent = () => {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center px-4 py-12 aninmated-fadeIn"
+      className="min-h-screen flex justify-center px-4 py-12 aninmated-fadeIn"
       style={{ animation: "fadeIn 1s ease-out" }}
     >
       <div className="shadow-xl rounded-xl p-8 w-full max-w-md ">
