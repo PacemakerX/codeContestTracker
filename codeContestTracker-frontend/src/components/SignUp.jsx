@@ -84,6 +84,10 @@ const BASE_URL = "https://apicodecontesttrackerbackend.onrender.com";
         }
       );
 
+      
+      const data = await response.json();
+
+      localStorage.setItem("tempToken", data.emailVerificationToken);
       if (response.ok) {
         setStep("details");
       } else {
@@ -116,7 +120,9 @@ const BASE_URL = "https://apicodecontesttrackerbackend.onrender.com";
     try {
       const response = await fetch(`${BASE_URL}/api/users/register`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("tempToken")}`,
+         },
         body: JSON.stringify({
           username: formData.username,
           email: formData.email,
