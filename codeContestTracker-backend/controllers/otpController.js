@@ -133,8 +133,8 @@ class OTPController {
             const { email, otp } = req.body;
 
             // Input validation
-            if (!email || !otp) {
-                return res.status(400).json({ message: "Email and OTP are required" });
+            if (!otp) {
+                return res.status(400).json({ message: "OTP is required" });
             }
 
             // Verify OTP validity

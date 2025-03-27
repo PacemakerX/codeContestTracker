@@ -1,24 +1,24 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
-import { useNotification } from "../components/ToastNotification"; // Import notification hook
+import { useNotification } from "../components/ToastNotification";
 
-export default function SignupFlow() {
+const SignupFlow = () => {
   const { addNotification } = useNotification();
+  const [email, setEmail] = useState("");
+  const [otp, setOtp] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [step, setStep] = useState("email");
-  const [formData, setFormData] = useState({
-    username: "",
-    email: "",
-    password: "",
-    phoneNumber: "",
-    otp: "",
-  });
-  const [error, setError] = useState(null);
+  const [sendLoading, setsendLoading] = useState(false);
+  const [verifyLoading, setverifyLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
-  
-const BASE_URL = "https://apicodecontesttrackerbackend.onrender.com";
+
+  const BASE_URL = "https://apicodecontesttrackerbackend.onrender.com";
 
   const validateEmail = (email) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -26,84 +26,92 @@ const BASE_URL = "https://apicodecontesttrackerbackend.onrender.com";
   };
 
   const validatePassword = (password) => {
-    // At least 8 characters, one uppercase, one lowercase, one number, and optional special characters
     const re =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d!@#$%^&*(),.?":{}|<>]{8,}$/;
     return re.test(password);
   };
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    setError(null);
-  };
-
-  const handleEmailSubmit = async (e) => {
+  const handleSendOTP = async (e) => {
     e.preventDefault();
-    if (!validateEmail(formData.email)) {
+    setsendLoading(true);
+
+    if (!validateEmail(email)) {
       addNotification("Please enter a valid email address", "error");
+      setsendLoading(false);
       return;
     }
 
     try {
-      // Call OTP send endpoint
       const response = await fetch(`${BASE_URL}/api/users/send-otp`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: formData.email }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
       });
 
-      if (response.ok) {
-        setStep("otp");
-      } else {
-        const data = await response.json();
-        addNotification(
-          data.message || "Failed to send OTP. Please try again.",
-          "error"
-        );
+      if (!response.ok) {
+        let data;
+        try {
+          data = await response.json();
+        } catch {
+          throw new Error("Server returned an empty response.");
+        }
+        throw new Error(data?.message || "Failed to send OTP.");
       }
+
+      addNotification("OTP sent successfully!", "success");
+      setStep("otp");
     } catch (err) {
       addNotification(
-        err.message || "Login failed. Please try again.",
+        err.message || "Error sending OTP. Please try again.",
         "error"
       );
     }
+    setsendLoading(false);
   };
 
-  const handleOTPVerify = async (e) => {
+  const handleVerifyOTP = async (e) => {
     e.preventDefault();
+    setverifyLoading(true);
+
     try {
-      const response = await fetch(
-        `${BASE_URL}/api/users/verify-otp`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: formData.email,
-            otp: formData.otp,
-          }),
+      const response = await fetch(`${BASE_URL}/api/users/verify-otp`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, otp }),
+      });
+
+      if (!response.ok) {
+        let data;
+        try {
+          data = await response.json();
+        } catch {
+          throw new Error("Server returned an empty response.");
         }
-      );
-
-      
-      const data = await response.json();
-
-      localStorage.setItem("tempToken", data.emailVerificationToken);
-      if (response.ok) {
-        setStep("details");
-      } else {
-        const data = await response.json();
-        addNotification(data.message || "OTP verification failed", "error");
+        throw new Error(data?.message || "Invalid OTP.");
       }
+
+      const data = await response.json();
+      localStorage.setItem("tempToken", data.emailVerificationToken);
+      setStep("details");
+      addNotification("OTP Verified Successfully!", "success");
     } catch (err) {
-      addNotification(err.message || "OTP verification failed", "error");
+      addNotification(
+        err.message || "Error verifying OTP. Please try again.",
+        "error"
+      );
     }
+    setverifyLoading(false);
   };
 
   const handleFinalSubmit = async (e) => {
     e.preventDefault();
 
     // Validate password
-    if (!validatePassword(formData.password)) {
+    if (!validatePassword(password)) {
       addNotification(
         "Password must be at least 8 characters long and contain one uppercase, one lowercase letter, and one number",
         "error"
@@ -112,263 +120,255 @@ const BASE_URL = "https://apicodecontesttrackerbackend.onrender.com";
     }
 
     // Check password match
-    if (formData.password !== formData.confirmPassword) {
+    if (password !== confirmPassword) {
       addNotification("Passwords do not match", "error");
       return;
     }
 
+    setsendLoading(true);
+
     try {
       const response = await fetch(`${BASE_URL}/api/users/register`, {
         method: "POST",
-        headers: { "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("tempToken")}`,
-         },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("tempToken")}`,
+        },
         body: JSON.stringify({
-          username: formData.username,
-          email: formData.email,
-          password: formData.password,
-          phoneNumber: formData.phoneNumber,
+          username,
+          email,
+          password,
+          phoneNumber,
         }),
       });
 
-      if (response.ok) {
-        navigate("/login");
-      } else {
-        const data = await response.json();
-        addNotification(data.message || "Signup failed", "error");
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Signup failed.");
       }
+
+      // Success: Cleanup and redirect
+      localStorage.removeItem("tempToken");
+      addNotification("Signup successful! Please log in.", "success");
+      navigate("/login");
     } catch (err) {
-      addNotification(err.message || "Signup failed", "error");
+      // Handle errors gracefully
+      addNotification(err.message || "Network error. Please try again.","error");
+    } finally {
+      setsendLoading(false); // Stop loading after completion
     }
   };
 
-  const renderEmailStep = () => (
-    <div className="flex justify-center items-center">
-      <div className="w-full max-w-md p-8 rounded-lg shadow-lg animated-fadeIn">
-        <h2 className="text-2xl font-bold text-white mb-6 text-center">
-          Enter Your Email
-        </h2>
-        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-        <form
-          onSubmit={handleEmailSubmit}
-          className="space-y-4"
-        >
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-            className="w-full p-3 bg-gray-700 text-white border border-gray-600 rounded-md"
-          />
-          <button
-            type="submit"
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold p-3 rounded-md transition"
+  const renderStep = () => {
+    switch (step) {
+      case "email":
+        return (
+          <form
+            onSubmit={handleSendOTP}
+            className="space-y-4 animated-fadeIn"
+            style={{ animation: "fadeIn 1s ease-out" }}
           >
-            Send OTP
-          </button>
-        </form>
-      </div>
-      <style>
-        {`
-          @keyframes fadeIn {
-            0% {
-              opacity: 0;
-              transform: translateY(-20px);
-            }
-            100% {
-              opacity: 1;
-              transform: translateY(0);
-            }
-          }
-          .animated-fadeIn {
-            animation: fadeIn 1s ease-out;
-          }
-        `}
-      </style>
-    </div>
-  );
-
-  const renderOTPStep = () => (
-    <div className="flex justify-center items-center">
-      <div className="w-full max-w-md p-8 rounded-lg shadow-lg text-center animated-fadeIn">
-        <h2 className="text-2xl font-bold text-white mb-6">Verify OTP</h2>
-        <p className="text-gray-400 mb-4">
-          We've sent a 6-digit OTP to{" "}
-          <span className="text-blue-400">{formData.email}</span>. Please enter
-          it below.
-        </p>
-        {error && <p className="text-red-500 mb-4">{error}</p>}
-        <form onSubmit={handleOTPVerify} className="space-y-4">
-          <div className="flex justify-center space-x-2">
-            {[...Array(6)].map((_, index) => (
-              <input
-                key={index}
-                id={`otp-${index}`} // Add unique ID to each input
-                type="text"
-                maxLength="1"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                name="otp"
-                value={formData.otp[index] || ""}
-                onChange={(e) => {
-                  // Validate only numbers
-                  const value = e.target.value.replace(/[^0-9]/g, "");
-
-                  const newOtp = formData.otp.split("");
-                  newOtp[index] = value;
-                  setFormData({ ...formData, otp: newOtp.join("") });
-
-                  // Move focus to the next input if filled
-                  if (value && index < 5) {
-                    document.getElementById(`otp-${index + 1}`).focus();
-                  }
-                }}
-                onKeyDown={(e) => {
-                  // Move focus to previous input on backspace
-                  if (
-                    e.key === "Backspace" &&
-                    !formData.otp[index] &&
-                    index > 0
-                  ) {
-                    document.getElementById(`otp-${index - 1}`).focus();
-                  }
-                }}
-                className="w-12 h-12 text-center bg-gray-700 text-white border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            ))}
-          </div>
-          <div className="flex justify-between mt-4">
-            <button
-              type="button"
-              onClick={() => setStep("email")}
-              className="text-blue-400 hover:text-blue-300"
-            >
-              Change Email
-            </button>
-            <button
-              type="submit"
-              className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded-md transition"
-            >
-              Verify OTP
-            </button>
-          </div>
-        </form>
-      </div>
-      <style>
-        {`
-          @keyframes fadeIn {
-            0% {
-              opacity: 0;
-              transform: translateY(-20px);
-            }
-            100% {
-              opacity: 1;
-              transform: translateY(0);
-            }
-          }
-          .animated-fadeIn {
-            animation: fadeIn 1s ease-out;
-          }
-        `}
-      </style>
-    </div>
-  );
-
-  const renderDetailsStep = () => (
-    <div className="flex justify-center items-center">
-      <div className="w-full max-w-md p-8 rounded-lg shadow-lg">
-        <h2 className="text-2xl font-bold text-white mb-6 text-center animated-fadeIn">
-          Complete Your Profile
-        </h2>
-        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-        <form
-          onSubmit={handleFinalSubmit}
-          className="space-y-4 animated-fadeIn"
-        >
-          <div className="relative">
-            <input
-              type="text"
-              name="username"
-              placeholder="Username"
-              value={formData.username}
-              onChange={handleChange}
-              required
-              className="w-full p-3 bg-gray-700 text-white border border-gray-600 rounded-md"
-            />
-          </div>
-
-          <div className="relative">
             <input
               type="email"
-              name="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              disabled={setsendLoading}
+              className="w-full p-3 bg-gray-700 text-white border border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500"
+            />
+            <button
+              type="submit"
+              disabled={sendLoading}
+              className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold p-3 rounded-md transition duration-300"
+            >
+              {sendLoading ? "Sending..." : "Send OTP"}
+            </button>
+          </form>
+        );
+
+      case "otp":
+        return (
+          <form
+            onSubmit={handleVerifyOTP}
+            className="space-y-4 animated-fadeIn"
+            style={{ animation: "fadeIn 1s ease-out" }}
+          >
+            <p className="text-gray-400 text-center mb-4">
+              We've sent a 6-digit OTP to{" "}
+              <span className="text-blue-400">{email}</span>. Please enter it
+              below.
+            </p>
+
+            <div className="flex justify-center space-x-2">
+              {[...Array(6)].map((_, index) => (
+                <input
+                  key={index}
+                  id={`otp-${index}`}
+                  type="text"
+                  maxLength="1"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  value={otp[index] || ""}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/[^0-9]/g, "");
+                    const newOtp = otp.split("");
+                    newOtp[index] = value;
+                    setOtp(newOtp.join(""));
+
+                    if (value && index < 5) {
+                      document.getElementById(`otp-${index + 1}`).focus();
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Backspace" && !otp[index] && index > 0) {
+                      document.getElementById(`otp-${index - 1}`).focus();
+                    }
+                  }}
+                  className="w-12 h-12 text-center bg-gray-700 text-white border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              ))}
+            </div>
+
+            <div className="space-y-2">
+              <button
+                type="submit"
+                disabled={verifyLoading}
+                className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold p-3 rounded-md transition duration-300"
+              >
+                {verifyLoading ? "Verifying..." : "Verify OTP"}
+              </button>
+
+              <button
+                type="button"
+                onClick={(e) => handleSendOTP(e)}
+                disabled={sendLoading}
+                className="w-full bg-gray-700 hover:bg-gray-600 text-white font-semibold p-3 rounded-md transition duration-300"
+              >
+                {sendLoading ? "Sending" : "Resend OTP"}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setStep("email")}
+                className="w-full text-blue-400 hover:text-blue-300 text-sm mt-2"
+              >
+                Change Email
+              </button>
+            </div>
+          </form>
+        );
+
+      case "details":
+        return (
+          <form
+            onSubmit={handleFinalSubmit}
+            className="space-y-4 animated-fadeIn"
+            style={{ animation: "fadeIn 1s ease-out" }}
+          >
+            <input
+              type="text"
+              placeholder="Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              disabled={sendLoading}
+              className="w-full p-3 bg-gray-700 text-white border border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500"
+            />
+
+            <input
+              type="email"
               placeholder="Email"
-              value={formData.email}
+              value={email}
               readOnly
               className="w-full p-3 bg-gray-600 text-gray-400 border border-gray-600 rounded-md cursor-not-allowed"
             />
-          </div>
 
-          <div className="relative">
             <input
               type="tel"
-              name="phoneNumber"
               placeholder="Phone Number"
-              value={formData.phoneNumber}
-              onChange={handleChange}
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
               required
-              className="w-full p-3 bg-gray-700 text-white border border-gray-600 rounded-md"
+              disabled={sendLoading}
+              className="w-full p-3 bg-gray-700 text-white border border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500"
             />
-          </div>
 
-          <div className="relative">
-            <input
-              type={showPassword ? "text" : "password"}
-              name="password"
-              placeholder="Password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              className="w-full p-3 bg-gray-700 text-white border border-gray-600 rounded-md pr-10"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                disabled={sendLoading}
+                className="w-full p-3 bg-gray-700 text-white border border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+
+            <div className="relative">
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                placeholder="Confirm Password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                disabled={sendLoading}
+                className="w-full p-3 bg-gray-700 text-white border border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+              >
+                {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+
             <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+              type="submit"
+              disabled={sendLoading}
+              className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold p-3 rounded-md transition duration-300"
             >
-              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              {sendLoading ? "Signing Up..." : "Sign Up"}
             </button>
-          </div>
+          </form>
+        );
 
-          <div className="relative">
-            <input
-              type={showConfirmPassword ? "text" : "password"}
-              name="confirmPassword"
-              placeholder="Confirm Password"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              required
-              className="w-full p-3 bg-gray-700 text-white border border-gray-600 rounded-md pr-10"
-            />
-            <button
-              type="button"
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-            >
-              {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-            </button>
-          </div>
+      default:
+        return null;
+    }
+  };
 
-          <button
-            type="submit"
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold p-3 rounded-md transition"
-          >
-            Sign Up
-          </button>
-        </form>
+  return (
+    <div className="flex items-center justify-center p-4">
+      <div className="w-full max-w-md p-8 rounded-lg shadow-lg">
+        <h2 className="text-2xl font-bold text-white mb-6 text-center">
+          Sign Up
+        </h2>
+
+        {renderStep()}
+
+        <p
+          className="text-gray-400 text-sm text-center mt-4 animated-fadeIn"
+          style={{ animation: "fadeIn 1s ease-out" }}
+        >
+          Already have an account?{" "}
+          <Link to="/login" className="text-blue-400 hover:underline">
+            Login
+          </Link>
+        </p>
       </div>
 
+      {/* Custom fade-in animation */}
       <style>
         {`
           @keyframes fadeIn {
@@ -381,23 +381,10 @@ const BASE_URL = "https://apicodecontesttrackerbackend.onrender.com";
               transform: translateY(0);
             }
           }
-          .animated-fadeIn {
-            animation: fadeIn 1s ease-out;
-          }
         `}
       </style>
     </div>
   );
+};
 
-  // Render the appropriate step based on current state
-  switch (step) {
-    case "email":
-      return renderEmailStep();
-    case "otp":
-      return renderOTPStep();
-    case "details":
-      return renderDetailsStep();
-    default:
-      return renderEmailStep();
-  }
-}
+export default SignupFlow;

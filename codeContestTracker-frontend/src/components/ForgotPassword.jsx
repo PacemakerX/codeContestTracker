@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
+import { useNotification } from "../components/ToastNotification";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -8,17 +9,18 @@ const ForgotPassword = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [step, setStep] = useState("email");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [sendloading, setsendLoading] = useState(false);
+  const [verifyloading, setverifyLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const { addNotification } = useNotification();
   const navigate = useNavigate();
 
   const BASE_URL = "https://apicodecontesttrackerbackend.onrender.com";
 
   const handleSendOTP = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError("");
+    setsendLoading(true);
 
     try {
       const response = await fetch(`${BASE_URL}/api/users/send-otp`, {
@@ -29,25 +31,30 @@ const ForgotPassword = () => {
         body: JSON.stringify({ email }),
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        setStep("otp");
-        setError("");
-      } else {
-        setError(data.message || "Failed to send OTP");
+      if (!response.ok) {
+        let data;
+        try {
+          data = await response.json();
+        } catch {
+          throw new Error("Server returned an empty response.");
+        }
+        throw new Error(data?.message || "Failed to send OTP.");
       }
-    } catch {
-      setError("Network error. Please try again.");
-    } finally {
-      setLoading(false);
+
+      addNotification("OTP sent successfully!", "success");
+      setStep("otp");
+    } catch (err) {
+      addNotification(
+        err.message || "Error sending OTP. Please try again.",
+        "error"
+      );
     }
+    setsendLoading(false);
   };
 
   const handleVerifyOTP = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError("");
+    setverifyLoading(true);
 
     try {
       const response = await fetch(`${BASE_URL}/api/users/verify-otp`, {
@@ -58,32 +65,38 @@ const ForgotPassword = () => {
         body: JSON.stringify({ email, otp }),
       });
 
-      const data = await response.json();
-
-      localStorage.setItem("tempToken", data.emailVerificationToken);
-      if (response.ok) {
-        setStep("reset");
-        setError("");
-      } else {
-        setError(data.message || "Invalid OTP");
+      if (!response.ok) {
+        let data;
+        try {
+          data = await response.json();
+        } catch {
+          throw new Error("Server returned an empty response.");
+        }
+        throw new Error(data?.message || "Invalid OTP.");
       }
-    } catch {
-      setError("Network error. Please try again.");
-    } finally {
-      setLoading(false);
+
+      const data = await response.json();
+      localStorage.setItem("tempToken", data.emailVerificationToken);
+      setStep("reset");
+      addNotification("OTP Verified Successfully!", "success");
+    } catch (err) {
+      addNotification(
+        err.message || "Error verifying OTP. Please try again.",
+        "error"
+      );
     }
+    setverifyLoading(false);
   };
 
   const handleResetPassword = async (e) => {
     e.preventDefault();
 
     if (newPassword !== confirmPassword) {
-      setError("Passwords do not match");
+      addNotification("Passwords do not match", "error");
       return;
     }
 
-    setLoading(true);
-    setError("");
+    setsendLoading(true);
 
     try {
       const response = await fetch(`${BASE_URL}/api/users/reset-password`, {
@@ -98,19 +111,26 @@ const ForgotPassword = () => {
         }),
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        localStorage.removeItem("tempToken");
-        navigate("/login");
-      } else {
-        setError(data.message || "Failed to reset password");
+      if (!response.ok) {
+        let data;
+        try {
+          data = await response.json();
+        } catch {
+          throw new Error("Server returned an empty response.");
+        }
+        throw new Error(data?.message || "Failed to reset password.");
       }
-    } catch {
-      setError("Network error. Please try again.");
-    } finally {
-      setLoading(false);
+
+      localStorage.removeItem("tempToken");
+      addNotification("Password reset successfully!", "success");
+      navigate("/login");
+    } catch (err) {
+      addNotification(
+        err.message || "Error resetting password. Please try again.",
+        "error"
+      );
     }
+    setsendLoading(false);
   };
 
   const renderStep = () => {
@@ -128,15 +148,15 @@ const ForgotPassword = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              disabled={loading}
+              disabled={sendloading}
               className="w-full p-3 bg-gray-700 text-white border border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500"
             />
             <button
               type="submit"
-              disabled={loading}
+              disabled={sendloading}
               className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold p-3 rounded-md transition duration-300"
             >
-              {loading ? "Sending..." : "Send OTP"}
+              {sendloading ? "Sending..." : "Send OTP"}
             </button>
           </form>
         );
@@ -192,19 +212,19 @@ const ForgotPassword = () => {
             <div className="space-y-2">
               <button
                 type="submit"
-                disabled={loading}
+                disabled={verifyloading}
                 className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold p-3 rounded-md transition duration-300"
               >
-                {loading ? "Verifying..." : "Verify OTP"}
+                {verifyloading ? "Verifying..." : "Verify OTP"}
               </button>
 
               <button
                 type="button"
-                onClick={() => handleSendOTP()}
-                disabled={loading}
+                onClick={handleSendOTP}
+                disabled={sendloading}
                 className="w-full bg-gray-700 hover:bg-gray-600 text-white font-semibold p-3 rounded-md transition duration-300"
               >
-                Resend OTP
+                {sendloading ? "Sending" : "Resend OTP"}
               </button>
 
               <button
@@ -232,7 +252,7 @@ const ForgotPassword = () => {
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 required
-                disabled={loading}
+                disabled={sendloading}
                 className="w-full p-3 bg-gray-700 text-white border border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500"
               />
               <button
@@ -243,21 +263,32 @@ const ForgotPassword = () => {
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
-            <input
-              type="password"
-              placeholder="Confirm New Password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-              disabled={loading}
-              className="w-full p-3 bg-gray-700 text-white border border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500"
-            />
+
+            <div className="relative">
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                name="confirmPassword"
+                placeholder="Confirm Password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                disabled={sendloading}
+                className="w-full p-3 bg-gray-700 text-white border border-gray-600 rounded-md pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+              >
+                {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
             <button
               type="submit"
-              disabled={loading}
+              disabled={sendloading}
               className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold p-3 rounded-md transition duration-300"
             >
-              {loading ? "Resetting..." : "Reset Password"}
+              {sendloading ? "Resetting..." : "Reset Password"}
             </button>
           </form>
         );
@@ -273,8 +304,6 @@ const ForgotPassword = () => {
         <h2 className="text-2xl font-bold text-white mb-6 text-center">
           Forgot Password
         </h2>
-
-        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
         {renderStep()}
 
