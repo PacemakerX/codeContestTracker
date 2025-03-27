@@ -16,8 +16,7 @@ const ForgotPassword = () => {
   const { addNotification } = useNotification();
   const navigate = useNavigate();
 
-  // const BASE_URL = "https://apicodecontesttrackerbackend.onrender.com";
-    const BASE_URL = "http://localhost:3030";
+  const BASE_URL = "https://apicodecontesttrackerbackend.onrender.com";
 
   const handleSendOTP = async (e) => {
     e.preventDefault();
