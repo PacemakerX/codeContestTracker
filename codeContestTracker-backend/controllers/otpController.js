@@ -1,5 +1,16 @@
 const nodemailer = require("nodemailer");
-const { v4: uuidv4 } = require("uuid");
+const jwt = require("jsonwebtoken");
+
+const JWT_SECRET = process.env.JWT_SECRET || "your_secret_key"; // Store in env
+
+/**
+ * Generates a temporary JWT token valid for 10 minutes
+ * @param {string} email - User's email address
+ * @returns {string} JWT token
+ */
+const generateTempToken = (email) => {
+    return jwt.sign({ email }, JWT_SECRET, { expiresIn: "10m" });
+};
 
 /**
  * Class to manage OTP generation, storage, and verification
@@ -94,7 +105,7 @@ class OTPController {
             await transporter.sendMail({
                 from: process.env.EMAIL_USER,
                 to: email,
-                subject: "Your OTP for Registration",
+                subject: "Your OTP for Email Verification",
                 html: `
                     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                         <h2>OTP Verification</h2>
@@ -132,8 +143,7 @@ class OTPController {
                 return res.status(400).json({ message: "Invalid or expired OTP" });
             }
 
-            // Generate verification token upon successful OTP verification
-            const emailVerificationToken = uuidv4();
+            const emailVerificationToken = generateTempToken(email);
 
             res.status(200).json({
                 message: "OTP verified successfully",
