@@ -153,18 +153,27 @@ const updateUserProfile = async (req, res) => {
 const resetPassword = async (req, res) => {
   try {
     const { email, newPassword } = req.body;
-    
+
+    // Validate if email and newPassword are provided
     if (!email || !newPassword) {
-      return res.status(400).json({ message: 'Email and new password are required' });
+      return res.status(400).json({ message: "New password is required" });
     }
 
-    // Reset the password using user model
+    // Check if the user exists in the database
+    const user = await userModels.findOne({ email });
+
+    if (!user) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    // Reset the password for the found user
     await userModels.resetPassword(email, newPassword);
 
-    res.status(200).json({ message: 'Password reset successfully' });
+    res.status(200).json({ message: "Password reset successfully" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: error.message || "Internal server error" });
   }
 };
+
 
 module.exports = { registerUser, loginUser, getUserProfile, updateUserProfile, resetPassword };
