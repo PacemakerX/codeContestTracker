@@ -141,4 +141,30 @@ const updateUserProfile = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, loginUser, getUserProfile, updateUserProfile };
+/**
+ * Reset user password using OTP verification
+ * @param {Object} req - Express request object
+ * @param {Object} req.body - Request body containing reset details
+ * @param {string} req.body.email - User's email
+ * @param {string} req.body.newPassword - New password to set
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with success or error message
+ */
+const resetPassword = async (req, res) => {
+  try {
+    const { email, newPassword } = req.body;
+    
+    if (!email || !newPassword) {
+      return res.status(400).json({ message: 'Email and new password are required' });
+    }
+
+    // Reset the password using user model
+    await userModels.resetPassword(email, newPassword);
+
+    res.status(200).json({ message: 'Password reset successfully' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = { registerUser, loginUser, getUserProfile, updateUserProfile, resetPassword };

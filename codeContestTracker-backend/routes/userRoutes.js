@@ -4,6 +4,7 @@ const {
   loginUser,
   getUserProfile,
   updateUserProfile,
+  resetPassword,
 } = require("../controllers/userController");
 const router = express.Router();
 const OTPController = require("../controllers/otpController.js");
@@ -11,10 +12,11 @@ const ContactController = require("../controllers/contactController");
 const { getNote, addOrUpdateNote } = require("../controllers/noteController");
 
 const authenticate = require("../middleware/authMiddleware");
+const verifyTempToken = require("../middleware/verifyTempToken");
 // Route for user registration
 // POST /api/users/register
 // Public access - allows new users to create an account
-router.post("/register", registerUser);
+router.post("/register",verifyTempToken,registerUser);
 
 // Route for user authentication/login
 // POST /api/users/login
@@ -51,5 +53,10 @@ router.get("/note/:contestId", authenticate, getNote);
 // PUT /api/users/profile
 // Private access - requires authentication token
 router.post("/note", authenticate, addOrUpdateNote);
+
+// Route to update user profile information\
+// PUT /api/users/profile
+// Private access - requires otp verification
+router.post("/reset-password",verifyTempToken,resetPassword);
 
 module.exports = router;
