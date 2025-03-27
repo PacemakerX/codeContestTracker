@@ -239,6 +239,25 @@ userSchema.statics.updateProfile = async function (userId, updates) {
   }
 };
 
+userSchema.statics.resetPassword = async function (email, newPassword) {
+  try {
+    if (!email || !newPassword) {
+      throw new Error("Missing required fields");
+    }
+
+    const user = await this.findOne({ email });
+    // Update password
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(newPassword, salt);
+    user.otp = null; // Clear OTP after reset
+
+    await user.save();
+    return { message: "Password reset successfully." };
+  } catch (error) {
+    throw new Error("Password reset failed: " + error.message);
+  }
+};
+
 // Create and export the User model
 const userModel = mongoose.model("User", userSchema);
 module.exports = userModel;
