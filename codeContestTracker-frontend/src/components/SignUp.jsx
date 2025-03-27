@@ -12,7 +12,6 @@ const SignupFlow = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [step, setStep] = useState("email");
-  const [error, setError] = useState("");
   const [sendLoading, setsendLoading] = useState(false);
   const [verifyLoading, setverifyLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -35,10 +34,9 @@ const SignupFlow = () => {
   const handleSendOTP = async (e) => {
     e.preventDefault();
     setsendLoading(true);
-    setError("");
 
     if (!validateEmail(email)) {
-      // setError("Please enter a valid email address");
+      addNotification("Please enter a valid email address", "error");
       setsendLoading(false);
       return;
     }
@@ -114,20 +112,20 @@ const SignupFlow = () => {
 
     // Validate password
     if (!validatePassword(password)) {
-      setError(
-        "Password must be at least 8 characters long and contain one uppercase, one lowercase letter, and one number"
+      addNotification(
+        "Password must be at least 8 characters long and contain one uppercase, one lowercase letter, and one number",
+        "error"
       );
       return;
     }
 
     // Check password match
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      addNotification("Passwords do not match", "error");
       return;
     }
 
     setsendLoading(true);
-    setError("");
 
     try {
       const response = await fetch(`${BASE_URL}/api/users/register`, {
@@ -156,7 +154,7 @@ const SignupFlow = () => {
       navigate("/login");
     } catch (err) {
       // Handle errors gracefully
-      setError(err.message || "Network error. Please try again.");
+      addNotification(err.message || "Network error. Please try again.","error");
     } finally {
       setsendLoading(false); // Stop loading after completion
     }
@@ -356,8 +354,6 @@ const SignupFlow = () => {
         <h2 className="text-2xl font-bold text-white mb-6 text-center">
           Sign Up
         </h2>
-
-        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
         {renderStep()}
 
