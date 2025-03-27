@@ -11,6 +11,7 @@ import Signup from "./components/SignUp";
 import UserProfile from "./components/UserProfile";
 import About from "./components/About";
 import Contact from "./components/Contact";
+import ForgotPassword from "./components/ForgotPassword";
 
 // Import context providers
 import { NotificationProvider } from "./components/ToastNotification";
@@ -48,6 +49,7 @@ function App() {
               <Route path="/profile" element={<UserProfile />} />
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
             </Routes>
           </main>
 
