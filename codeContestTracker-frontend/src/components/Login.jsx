@@ -118,6 +118,14 @@ export default function LoginForm() {
             Sign Up
           </Link>
         </p>
+        <p
+          className="text-gray-400 text-sm text-center mt-4 aninmated-fadeIn"
+          style={{ animation: "fadeIn 1s ease-out" }}
+        >
+          <Link to="/forgot-password" className="text-blue-400 hover:underline">
+            Forgot Password?
+          </Link>
+        </p>
       </div>
       {/* Custom fade-in animation */}
       <style>
