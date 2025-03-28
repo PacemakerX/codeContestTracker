@@ -20,7 +20,14 @@ const ContestNotesModal = ({ contestId, isOpen, onClose }) => {
   // State management
   const [noteContent, setNoteContent] = useState(""); // Stores the note content
   const [isLoading, setIsLoading] = useState(false); // Loading state for API calls
-  const [noteCreatedAt, setNoteCreatedAt] = useState(null); // Stores note creation time
+  const [noteCreatedAt, setNoteCreatedAt] = useState(
+    new Date().toLocaleString("en-GB", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      timeZone: "Asia/Kolkata",
+    })
+  ); // Stores note creation time in IST
 
   const { addNotification } = useNotification();
   const navigate = useNavigate();
@@ -180,9 +187,9 @@ const ContestNotesModal = ({ contestId, isOpen, onClose }) => {
             </div>
 
             {/* Footer Buttons */}
-            <div className="bg-gray-900/50 p-6 flex justify-end space-x-3 border-t border-gray-700">
+            <div className="bg-gray-900/50 p-6 flex items-center justify-between border-t border-gray-700">
               {noteContent && (
-                <div className="absolute bottom-9 left-4 right-4 text-md text-gray-400 ">
+                <div className="text-md text-gray-400">
                   <p className="truncate">
                     Last saved:{" "}
                     {new Date(noteCreatedAt).toLocaleDateString("en-GB", {
@@ -193,25 +200,25 @@ const ContestNotesModal = ({ contestId, isOpen, onClose }) => {
                   </p>
                 </div>
               )}
-              <button
-                onClick={onClose}
-                className="px-5 py-2 text-gray-300 bg-gray-700 rounded-lg 
-                hover:bg-gray-600 transition duration-200"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSaveNote}
-                disabled={isLoading}
-                className={`px-5 py-2 rounded-lg text-white transition duration-200 
-                ${
-                  isLoading
-                    ? "bg-gray-600 cursor-not-allowed"
-                    : "bg-blue-600 hover:bg-blue-700 active:bg-blue-800"
-                }`}
-              >
-                {isLoading ? "Saving..." : "Save Notes"}
-              </button>
+              <div className="flex space-x-3">
+                <button
+                  onClick={onClose}
+                  className="px-5 py-2 text-gray-300 bg-gray-700 rounded-lg hover:bg-gray-600 transition duration-200"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveNote}
+                  disabled={isLoading}
+                  className={`px-5 py-2 rounded-lg text-white transition duration-200 ${
+                    isLoading
+                      ? "bg-gray-600 cursor-not-allowed"
+                      : "bg-blue-600 hover:bg-blue-700 active:bg-blue-800"
+                  }`}
+                >
+                  {isLoading ? "Saving..." : "Save Notes"}
+                </button>
+              </div>
             </div>
 
             {/* Close Button */}
