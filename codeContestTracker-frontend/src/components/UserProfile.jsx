@@ -2,6 +2,11 @@ import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
+/**
+ * Profile Component
+ * Displays user profile information with animation effects
+ * Requires authentication to access
+ */
 const Profile = () => {
   // Redux and Router hooks
   const isAuthenticated = useSelector((state) => !!state.auth.token);
@@ -10,10 +15,13 @@ const Profile = () => {
   // Get user data from localStorage
   const user = JSON.parse(localStorage.getItem("user"));
 
-  // Authentication check effect
+  /**
+   * Authentication check effect
+   * Redirects to home page if user is not authenticated
+   */
   useEffect(() => {
-    if (!isAuthenticated || !localStorage.user) {
-      navigate("/login");
+    if (!isAuthenticated) {
+      navigate("/");
     }
   }, [isAuthenticated, navigate]);
 
@@ -23,45 +31,33 @@ const Profile = () => {
   }
 
   return (
-    <div className="flex flex-col items-center min-h-screen p-4">
-      {/* Profile Container with responsive adjustments */}
+    <div className="flex flex-col items-center justify-center">
+      {/* Profile Container with fade-in animation */}
       <div
-        className="w-full max-w-md mx-auto p-6 sm:p-10 text-center opacity-0 animate-fadeIn"
+        className="w-full max-w-4xl p-14 text-center opacity-0 animate-fadeIn"
         style={{ animation: "fadeIn 1s ease-out forwards" }}
       >
-        {/* Welcome Header with responsive text size */}
-        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-8 tracking-wide text-blue-500">
+        {/* Welcome Header */}
+        <h1 className="text-6xl font-extrabold mb-12 tracking-wide text-blue-500">
           Welcome, {user?.username}!
         </h1>
 
-        {/* User Information Card with responsive layout */}
-        <div className="text-base sm:text-xl space-y-6 sm:space-y-8 bg-gray-800/40 p-6 sm:p-10 rounded-3xl shadow-2xl border border-gray-700">
+        {/* User Information Card */}
+        <div className="text-xl space-y-8 bg-gray-800/40 p-12 rounded-3xl shadow-2xl border border-gray-700">
           {/* Username Row */}
-          <div className="flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
-            <span className="text-gray-400 text-base sm:text-xl">
-              👤 Username:
-            </span>
-            <span className="font-medium text-lg sm:text-2xl">
-              {user?.username}
-            </span>
+          <div className="flex justify-between items-center">
+            <span className="text-gray-400 text-xl">👤 Username:</span>
+            <span className="font-medium text-2xl">{user?.username}</span>
           </div>
-
           {/* Email Row */}
-          <div className="flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
-            <span className="text-gray-400 text-base sm:text-xl">
-              📧 Email:
-            </span>
-            <span className="font-medium text-lg sm:text-2xl break-words max-w-full">
-              {user?.email}
-            </span>
+          <div className="flex justify-between items-center">
+            <span className="text-gray-400 text-xl">📧 Email:</span>
+            <span className="font-medium text-2xl">{user?.email}</span>
           </div>
-
           {/* Phone Number Row */}
-          <div className="flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
-            <span className="text-gray-400 text-base sm:text-xl">
-              📞 Phone:
-            </span>
-            <span className="font-medium text-lg sm:text-2xl">{`+91 ${user?.phoneNumber}`}</span>
+          <div className="flex justify-between items-center">
+            <span className="text-gray-400 text-xl">📞 Phone:</span>
+            <span className="font-medium text-2xl">{`+91 ${user?.phoneNumber}`}</span>
           </div>
         </div>
       </div>
