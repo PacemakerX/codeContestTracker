@@ -31,6 +31,8 @@ const reminderRoutes = require("./routes/reminderRoutes");
 // Services
 const {processReminders} = require("./services/reminderService");
 
+app.set("trust proxy", 1); // Trust first proxy for rate limiting
+
 /**
  * Rate limiter configuration
  * Prevents abuse by limiting the number of requests from a single IP
@@ -61,15 +63,7 @@ app.use("/api/contests", contestRoutes);
 app.use("/api/bookmarks", bookmarkRoutes);
 app.use("/api/reminders", reminderRoutes);
 
-// Serve React frontend in production
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../codeContestTracker-frontend/dist")));
 
-  // Serve index.html for any unknown routes
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../codeContestTracker-frontend/dist", "index.html"));
-  });
-}
 
 /**
  * Start the server
