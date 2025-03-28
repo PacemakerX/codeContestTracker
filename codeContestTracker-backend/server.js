@@ -47,7 +47,14 @@ const limiter = rateLimit({
 connectToDatabase();
 
 // Middleware setup
-app.use(cors()); // Enable CORS for all routes
+app.use(
+  cors({
+    origin: ["https://codecontesttracker.onrender.com"], // Add frontend domain
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true, // Enable credentials if using cookies or auth tokens
+  })
+);
 app.use(express.json()); // Parse JSON request bodies
 app.use(limiter); // Apply rate limiting to all routes
 
