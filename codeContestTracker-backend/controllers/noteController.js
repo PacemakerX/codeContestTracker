@@ -7,13 +7,14 @@ const getNote = async (req, res) => {
   try {
     const { contestId } = req.params;
     const user = await User.findById(req.user.id);
-    // Check if the note exists for the given contestId
-    const note = user.notes.find((n) => n.contestId === contestId);
+    
+    // Find note using string comparison for contestId
+    const note = user.notes.find((n) => n.contestId === String(contestId));
 
-    if (note) {
+    if (note && note.note.trim() !== '') {
       return res.status(200).json({
-        note: note.note, // Send the note content
-        createdAt: note.createdAt, // Send the createdAt timestamp
+        note: note.note,
+        createdAt: note.createdAt,
       });
     } else {
       return res
@@ -31,21 +32,42 @@ const getNote = async (req, res) => {
 const addOrUpdateNote = async (req, res) => {
   try {
     const { contestId, note } = req.body;
+    
+    // Validate input
+    if (!contestId) {
+      return res.status(400).json({ message: "Contest ID is required" });
+    }
+
     const user = await User.findById(req.user.id);
 
-    // Check if the note already exists for this contest
-    const existingNote = user.notes.find((n) => n.contestId === contestId);
+    // Convert contestId to string to match schema
+    const stringContestId = String(contestId);
 
-    if (existingNote) {
-      // Update existing note
+    // Find the index of the existing note with the same contestId
+    const existingNoteIndex = user.notes.findIndex((n) => n.contestId === stringContestId);
 
-      existingNote.note = note;
-      if (note == "") {
+    // Handle empty or whitespace-only notes
+    if (!note || note.trim() === '') {
+      // If note exists, remove it
+      if (existingNoteIndex !== -1) {
+        user.notes.splice(existingNoteIndex, 1);
+        await user.save();
+        return res.status(200).json({ message: "Note removed successfully" });
       }
-      existingNote.createdAt = Date.now();
+      return res.status(400).json({ message: "Cannot add empty note" });
+    }
+
+    // If note exists for this contestId, update it
+    if (existingNoteIndex !== -1) {
+      user.notes[existingNoteIndex].note = note;
+      user.notes[existingNoteIndex].createdAt = Date.now();
     } else {
-      // Add a new note
-      user.notes.push({ contestId, note });
+      // If no existing note, add a new note
+      user.notes.push({ 
+        contestId: stringContestId, 
+        note,
+        createdAt: Date.now()
+      });
     }
 
     await user.save();
