@@ -172,7 +172,7 @@ export default function ContestList() {
       if (isReminderSet) {
         // Remove reminder if already set
         response = await fetch(
-          `${BASE_URL}/api/reminders/remove/${contestId}`,
+          `${BASE_URL}/api/reminders/${contestId}`,
           {
             method: "DELETE",
             headers: {
