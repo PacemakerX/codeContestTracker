@@ -1,12 +1,6 @@
-<p align="center">
-  <img src="https://user-images.githubusercontent.com/74038190/213911110-aedbef38-a29f-4b6b-a65c-11608b4f75a5.gif" width="100" />
-  <strong style="font-size: 36px; margin: 0 20px;">Code Contest Tracker</strong>
-  <img src="https://user-images.githubusercontent.com/74038190/213911110-aedbef38-a29f-4b6b-a65c-11608b4f75a5.gif" width="100" />
-</p>
-
+![Code Contest Tracker](./assets/image.png)
 A powerful web application to track and manage coding contests, helping users stay updated, analyze progress, and improve their competitive programming skills.
 
-![Code Contest Tracker](./assets/image.png)
 
 [![React](https://img.shields.io/badge/React-%2320232a.svg?logo=react&logoColor=%2361DAFB)](#)
 [![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=fff)](#)
