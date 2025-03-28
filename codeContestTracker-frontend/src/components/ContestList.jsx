@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 // Import logos and icons
 import CodeforcesLogo from "../assets/codeforces.svg";
 import LeetcodeLogo from "../assets/leetcode.svg";
@@ -27,6 +28,7 @@ export default function ContestList() {
 
   // Custom hooks
   const { addNotification } = useNotification();
+  const navigate = useNavigate();
 
   // Modal state management
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -72,6 +74,15 @@ export default function ContestList() {
         },
       });
 
+      // Handle token expiry or unauthorized access
+      if (response.status === 401 || response.status === 403) {
+        // Token expired or invalid → Clear token and redirect to login
+        localStorage.removeItem("token");
+        addNotification("Session expired. Please login again.", "warning");
+        navigate("/login");
+        return; // Stop further execution
+      }
+
       if (response.ok) {
         // Update bookmarks locally
         const updatedBookmarks = isBookmarked
@@ -86,10 +97,17 @@ export default function ContestList() {
 
         // Update local storage
         updateBookmarksInLocalStorage(updatedBookmarks);
+      } else {
+        // Handle other errors
+        const errorData = await response.json();
+        addNotification(
+          errorData.message || "Failed to update bookmark.",
+          "error"
+        );
       }
     } catch (err) {
-      // Show error notification
-      addNotification(err.message || "Failed to update bookmark.", "error");
+      // Show error notification for network or unexpected errors
+      addNotification(err.message || "Something went wrong.", "error");
     }
   };
 
@@ -152,21 +170,40 @@ export default function ContestList() {
       let response;
 
       if (isReminderSet) {
-        // Remove existing reminder
-        response = await fetch(`${BASE_URL}/api/reminders/${contestId}`, {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        // Remove reminder if already set
+        response = await fetch(
+          `${BASE_URL}/api/reminders/remove/${contestId}`,
+          {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        // Handle token expiry or unauthorized access
+        if (response.status === 401 || response.status === 403) {
+          localStorage.removeItem("token");
+          addNotification("Session expired. Please login again.", "warning");
+          navigate("/login");
+          return;
+        }
 
         if (response.ok) {
+          // Update reminders locally after removing
           const updatedReminders = user.reminders.filter(
             (reminder) => reminder.contestId !== contestId
           );
           updateRemindersInLocalStorage(updatedReminders);
           addNotification("Reminder removed successfully!", "info");
+        } else {
+          // Handle errors if removal fails
+          const errorData = await response.json();
+          addNotification(
+            errorData.message || "Failed to remove reminder.",
+            "error"
+          );
         }
       } else {
         // Add new reminder
@@ -187,13 +224,30 @@ export default function ContestList() {
           body: JSON.stringify(requestBody),
         });
 
+        // Handle token expiry or unauthorized access
+        if (response.status === 401 || response.status === 403) {
+          localStorage.removeItem("token");
+          addNotification("Session expired. Please login again.", "warning");
+          navigate("/login");
+          return;
+        }
+
         if (response.ok) {
+          // Update reminders after adding
           const data = await response.json();
           updateRemindersInLocalStorage(data.user.reminderPreferences);
           addNotification("Reminder added successfully!", "info");
+        } else {
+          // Handle errors if adding fails
+          const errorData = await response.json();
+          addNotification(
+            errorData.message || "Failed to add reminder.",
+            "error"
+          );
         }
       }
     } catch (err) {
+      // Show error notification for network or unexpected errors
       addNotification(
         err.message || "Failed to update reminder. Please try again.",
         "error"
@@ -443,8 +497,8 @@ export default function ContestList() {
 
       {isLoading && (
         <div className="flex justify-center items-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"></div>
-      </div>
+          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"></div>
+        </div>
       )}
 
       {!isLoading && pastContests.length > 0 && (
