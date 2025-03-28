@@ -1,5 +1,7 @@
 // Import required dependencies
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useNotification } from "./ToastNotification";
 // Import animation libraries (framer-motion)
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
@@ -19,6 +21,9 @@ const ContestNotesModal = ({ contestId, isOpen, onClose }) => {
   const [noteContent, setNoteContent] = useState(""); // Stores the note content
   const [isLoading, setIsLoading] = useState(false); // Loading state for API calls
   const [noteCreatedAt, setNoteCreatedAt] = useState(null); // Stores note creation time
+
+  const { addNotification } = useNotification();
+  const navigate = useNavigate();
 
   /**
    * Fetches existing note when modal opens
@@ -43,6 +48,14 @@ const ContestNotesModal = ({ contestId, isOpen, onClose }) => {
             }
           );
 
+          // Handle token expiry or unauthorized access
+          if (response.status === 401 || response.status === 403) {
+            localStorage.removeItem("token");
+            addNotification("Session expired. Please login again.", "error");
+            navigate("/login");
+            return;
+          }
+
           if (response.ok) {
             const data = await response.json();
             setNoteContent(data.note || ""); // Set note content or empty string
@@ -57,8 +70,7 @@ const ContestNotesModal = ({ contestId, isOpen, onClose }) => {
     };
 
     fetchExistingNote();
-  }, [contestId, isOpen]);
-
+  }, [contestId, isOpen, addNotification, navigate]);
   /**
    * Handles saving the note content to the server
    * Makes a POST request to the API endpoint with contest ID and note content
@@ -86,6 +98,13 @@ const ContestNotesModal = ({ contestId, isOpen, onClose }) => {
         }),
       });
 
+      // Handle token expiry or unauthorized access
+      if (response.status === 401 || response.status === 403) {
+        localStorage.removeItem("token");
+        addNotification("Session expired. Please login again.", "error");
+        navigate("/login");
+        return;
+      }
       // Handle successful response
       if (response.ok) {
         onClose(); // Close the modal
@@ -163,11 +182,14 @@ const ContestNotesModal = ({ contestId, isOpen, onClose }) => {
             {/* Footer Buttons */}
             <div className="bg-gray-900/50 p-6 flex justify-end space-x-3 border-t border-gray-700">
               {noteContent && (
-                <div
-                  className="absolute bottom-9 left-4 right-4 text-md text-gray-400 "
-                >
+                <div className="absolute bottom-9 left-4 right-4 text-md text-gray-400 ">
                   <p className="truncate">
-                    Last saved: {new Date(noteCreatedAt).toLocaleDateString(('en-GB'), { year: 'numeric', month: 'short', day: 'numeric' })}
+                    Last saved:{" "}
+                    {new Date(noteCreatedAt).toLocaleDateString("en-GB", {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    })}
                   </p>
                 </div>
               )}
