@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 // Import logos and icons
 import CodeforcesLogo from "../assets/codeforces.svg";
 import LeetcodeLogo from "../assets/leetcode.svg";
-import CodechefLogo from "../assets/codechef.svg";
+import CodechefLogo from "../assets/codechef.png";
 import BookmarkIcon from "../assets/bookmark.svg";
 // Import components and utilities
 import { useNotification } from "../components/ToastNotification";
@@ -258,7 +258,7 @@ export default function ContestList() {
     "codeforces.com": true,
     "leetcode.com": true,
     "codechef.com": true,
-    bookmark: true,
+    ...(token && { bookmark: true }),
   });
 
   // Date formatting utilities
@@ -385,12 +385,14 @@ export default function ContestList() {
     const allSelected = Object.values(selectedPlatforms).every(
       (value) => value
     );
+
     const newState = {
       "codeforces.com": !allSelected,
       "leetcode.com": !allSelected,
       "codechef.com": !allSelected,
-      bookmark: !allSelected,
+      ...(token && { bookmark: !allSelected }), // Include bookmark if logged in
     };
+
     setSelectedPlatforms(newState);
   };
 
@@ -532,7 +534,10 @@ export default function ContestList() {
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 hover:text-blue-400 transition-colors"
                       >
-                        <span className="text-xl" title={contest.host}>
+                        <span
+                          className="inline-flex justify-center items-center min-w-8 min-h-8 text-xl"
+                          title={contest.host}
+                        >
                           {getPlatformLogo(contest.host)}
                         </span>
                         {contest.event}
@@ -626,7 +631,10 @@ export default function ContestList() {
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 hover:text-blue-400 transition-colors"
                       >
-                        <span className="text-xl" title={contest.host}>
+                        <span
+                          className="inline-flex justify-center items-center min-w-8 min-h-8 text-xl"
+                          title={contest.host}
+                        >
                           {getPlatformLogo(contest.host)}
                         </span>
                         {contest.event}
