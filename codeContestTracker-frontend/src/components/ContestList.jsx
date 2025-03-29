@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 // Import logos and icons
 import CodeforcesLogo from "../assets/codeforces.svg";
 import LeetcodeLogo from "../assets/leetcode.svg";
-import CodechefLogo from "../assets/codechef.svg";
+import CodechefLogo from "../assets/codechef.png";
 import BookmarkIcon from "../assets/bookmark.svg";
 // Import components and utilities
 import { useNotification } from "../components/ToastNotification";
@@ -171,16 +171,13 @@ export default function ContestList() {
 
       if (isReminderSet) {
         // Remove reminder if already set
-        response = await fetch(
-          `${BASE_URL}/api/reminders/${contestId}`,
-          {
-            method: "DELETE",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
+        response = await fetch(`${BASE_URL}/api/reminders/${contestId}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
 
         // Handle token expiry or unauthorized access
         if (response.status === 401 || response.status === 403) {
@@ -261,7 +258,7 @@ export default function ContestList() {
     "codeforces.com": true,
     "leetcode.com": true,
     "codechef.com": true,
-    bookmark: true,
+    ...(token && { bookmark: true }),
   });
 
   // Date formatting utilities
@@ -388,12 +385,14 @@ export default function ContestList() {
     const allSelected = Object.values(selectedPlatforms).every(
       (value) => value
     );
+
     const newState = {
       "codeforces.com": !allSelected,
       "leetcode.com": !allSelected,
       "codechef.com": !allSelected,
-      bookmark: !allSelected,
+      ...(token && { bookmark: !allSelected }), // Include bookmark if logged in
     };
+
     setSelectedPlatforms(newState);
   };
 
@@ -535,7 +534,10 @@ export default function ContestList() {
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 hover:text-blue-400 transition-colors"
                       >
-                        <span className="text-xl" title={contest.host}>
+                        <span
+                          className="inline-flex justify-center items-center min-w-8 min-h-8 text-xl"
+                          title={contest.host}
+                        >
                           {getPlatformLogo(contest.host)}
                         </span>
                         {contest.event}
@@ -553,16 +555,37 @@ export default function ContestList() {
                             "noopener,noreferrer"
                           )
                         }
-                        className="px-4 py-2 rounded flex items-center gap-2 transition-colors bg-red-600 hover:bg-red-700 text-white"
+                        className="px-4 py-2 rounded flex items-center gap-2 bg-red-500 text-white transition-all duration-200 hover:bg-red-600 hover:shadow-lg hover:transform hover:scale-105"
                       >
-                        ▶️ Watch Solutions
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-5 w-5"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                        >
+                          <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" />
+                        </svg>
+                        <span>Watch Solutions</span>
                       </button>
                       {token && (
                         <button
                           onClick={() => handleAddNote(contest.id)}
-                          className="px-4 py-2 rounded flex items-center gap-2 transition-colors bg-blue-500 hover:bg-blue-600 text-white"
+                          className="px-4 py-2 rounded flex items-center gap-2 transition-all duration-200 bg-blue-500 hover:bg-blue-600 hover:shadow-lg hover:transform hover:scale-105 text-white"
                         >
-                          📝 Add Note
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                          </svg>
+                          Add Note
                         </button>
                       )}
                     </td>
@@ -608,7 +631,10 @@ export default function ContestList() {
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 hover:text-blue-400 transition-colors"
                       >
-                        <span className="text-xl" title={contest.host}>
+                        <span
+                          className="inline-flex justify-center items-center min-w-8 min-h-8 text-xl"
+                          title={contest.host}
+                        >
                           {getPlatformLogo(contest.host)}
                         </span>
                         {contest.event}
