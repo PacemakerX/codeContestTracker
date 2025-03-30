@@ -36,9 +36,7 @@ const sendEmailReminder = async (email, contestId, platform, contestTime) => {
   
   This is a reminder that your contest on **${platform}** (Contest ID: ${contestId}) is scheduled to begin at:
   
-  🕒 **Date & Time:** ${contestTime.toLocaleString("en-IN", {
-    timeZone: "Asia/Kolkata",
-  })}
+  🕒 **Date & Time:** ${contestTime}
   
   Make sure you're ready to give it your best shot! 💡
   
@@ -134,7 +132,6 @@ const processReminders = async () => {
  */
 cron.schedule("*/30 * * * *", () => {
   processReminders();
-  
 });
 
 module.exports = { processReminders };
