@@ -18,7 +18,8 @@ const SignupFlow = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
 
-  const BASE_URL = "https://apicodecontesttrackerbackend.onrender.com";
+// const BASE_URL = "https://apicodecontesttrackerbackend.onrender.com";
+const BASE_URL = "http://localhost:3030";
 
   const validateEmail = (email) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

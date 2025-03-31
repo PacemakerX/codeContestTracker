@@ -7,7 +7,8 @@ import { useNotification } from "./ToastNotification";
 import { motion, AnimatePresence } from "framer-motion";
 
 // API base URL
-const BASE_URL = "https://apicodecontesttrackerbackend.onrender.com";
+// const BASE_URL = "https://apicodecontesttrackerbackend.onrender.com";
+const BASE_URL = "http://localhost:3030";
 
 /**
  * ContestNotesModal Component
