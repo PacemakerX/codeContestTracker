@@ -55,6 +55,8 @@ app.use(
     credentials: true, // Enable credentials if using cookies or auth tokens
   })
 );
+// app.use(cors()); // allow everybody to use backend
+
 app.use(express.json()); // Parse JSON request bodies
 app.use(limiter); // Apply rate limiting to all routes
 
