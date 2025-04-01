@@ -425,7 +425,7 @@ export default function ContestList() {
   const upcomingContests = filteredContests.filter(
     (contest) => new Date(contest.start) >= now
   );
-  return (
+  return ( 
     // Main container
     <div className="max-w-5xl mx-auto mt-8 p-4">
       <h2 className="text-3xl font-bold text-white mb-6 text-center bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text">
