@@ -11,8 +11,8 @@ import { useNotification } from "../components/ToastNotification";
 import ContestNotesModal from "./ContestNotes";
 
 // API base URL
-// const BASE_URL = "https://apicodecontesttrackerbackend.onrender.com";
-const BASE_URL = "http://localhost:3030";
+const BASE_URL = "https://apicodecontesttrackerbackend.onrender.com";
+// const BASE_URL = "http://localhost:3030";
 
 
 export default function ContestList() {
