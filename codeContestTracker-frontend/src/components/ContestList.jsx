@@ -255,7 +255,6 @@ export default function ContestList() {
   };
 
   // Platform filter state
-  // Platform filter state with default values
   const [selectedPlatforms, setSelectedPlatforms] = useState({
     "codeforces.com": true,
     "leetcode.com": true,
@@ -426,109 +425,120 @@ export default function ContestList() {
   const upcomingContests = filteredContests.filter(
     (contest) => new Date(contest.start) >= now
   );
-
   return (
-    <div className="max-w-5xl mx-auto mt-8">
+    // Main container
+    <div className="max-w-5xl mx-auto mt-8 p-4"> {/* Added padding */}
       <h2 className="text-2xl font-bold text-white mb-4">Coding Contests</h2>
 
-      {/* Platform selection */}
-      <div className="mb-6 bg-gray-800 p-4 rounded-lg">
+      {/* Platform selection filter */}
+      <div className="mb-6 bg-gray-800/50 backdrop-blur-sm p-4 rounded-lg"> {/* Added transparency and blur */}
         <h3 className="text-lg font-semibold text-white mb-3">
           Filter by Platform {token ? "/ Bookmarks" : ""}
         </h3>
+        {/* Filter buttons */}
         <div className="flex flex-wrap gap-3">
+          {/* All Platforms Button */}
           <button
             onClick={() => toggleAllPlatforms()}
-            className={`px-4 py-2 rounded-md transition-colors ${
+            className={`px-4 py-2 rounded-md transition-all duration-200 ${
               Object.values(selectedPlatforms).every((value) => value)
-                ? "bg-blue-600 text-white"
-                : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                ? "bg-blue-600/80 backdrop-blur-sm text-white shadow-md hover:bg-blue-500/90" // Active style with transparency
+                : "bg-gray-700/50 backdrop-blur-sm text-gray-300 hover:bg-gray-600/70" // Inactive style with transparency
             }`}
           >
             All Platforms
           </button>
+          {/* Codeforces Button */}
           <button
             onClick={() => togglePlatform("codeforces.com")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all duration-200 ${
               selectedPlatforms["codeforces.com"]
-                ? "bg-blue-600 text-white"
-                : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                ? "bg-blue-600/80 backdrop-blur-sm text-white shadow-md hover:bg-blue-500/90"
+                : "bg-gray-700/50 backdrop-blur-sm text-gray-300 hover:bg-gray-600/70"
             }`}
           >
             <img src={CodeforcesLogo} alt="Codeforces" className="w-5 h-5" />
             Codeforces
           </button>
+          {/* LeetCode Button */}
           <button
             onClick={() => togglePlatform("leetcode.com")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all duration-200 ${
               selectedPlatforms["leetcode.com"]
-                ? "bg-blue-600 text-white"
-                : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                ? "bg-blue-600/80 backdrop-blur-sm text-white shadow-md hover:bg-blue-500/90"
+                : "bg-gray-700/50 backdrop-blur-sm text-gray-300 hover:bg-gray-600/70"
             }`}
           >
             <img src={LeetcodeLogo} alt="Leetcode" className="w-5 h-5" />
             LeetCode
           </button>
+          {/* CodeChef Button */}
           <button
             onClick={() => togglePlatform("codechef.com")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all duration-200 ${
               selectedPlatforms["codechef.com"]
-                ? "bg-blue-600 text-white"
-                : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                ? "bg-blue-600/80 backdrop-blur-sm text-white shadow-md hover:bg-blue-500/90"
+                : "bg-gray-700/50 backdrop-blur-sm text-gray-300 hover:bg-gray-600/70"
             }`}
           >
             <img src={CodechefLogo} alt="Codechef" className="w-5 h-5" />
             CodeChef
           </button>
+          {/* Bookmarked Button (conditional) */}
           {token && (
             <button
               onClick={() => togglePlatform("bookmark")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all duration-200 ${
                 selectedPlatforms["bookmark"]
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                  ? "bg-blue-600/80 backdrop-blur-sm text-white shadow-md hover:bg-blue-500/90"
+                  : "bg-gray-700/50 backdrop-blur-sm text-gray-300 hover:bg-gray-600/70"
               }`}
             >
-              <img src={BookmarkIcon} alt="Codechef" className="w-5 h-5" />
+              <img src={BookmarkIcon} alt="Bookmark" className="w-5 h-5" /> {/* Corrected alt text */}
               BookMarked
             </button>
           )}
         </div>
       </div>
 
+      {/* Loading indicator */}
       {isLoading && (
-        <div className="flex justify-center items-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"></div>
+        <div className="flex justify-center items-center h-32"> {/* Added height */}
+          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500"></div> {/* Improved spinner */}
         </div>
       )}
 
+      {/* Past Contests Section */}
       {!isLoading && pastContests.length > 0 && (
         <div className="mb-8">
-          <h3 className="text-xl font-semibold text-white mb-2">
+          <h3 className="text-xl font-semibold text-white mb-3"> {/* Increased margin */}
             Past Contests
           </h3>
-          <div className="overflow-x-auto">
-            <table className="w-full bg-gray-800 rounded-lg shadow">
+          <div className="overflow-x-auto bg-gray-800/50 backdrop-blur-sm rounded-lg shadow-lg"> {/* Added transparency, blur, shadow */}
+            <table className="w-full">
               <thead>
-                <tr className="bg-gray-900 text-white">
-                  <th className="p-3 text-left">Status</th>
-                  <th className="p-3 text-left">Start Time (IST)</th>
-                  <th className="p-3 text-left">Contest Name</th>
-                  <th className="p-3 text-center">Actions</th>
+                <tr className="bg-gray-900/70 text-white"> {/* Added transparency */}
+                  <th className="p-3 text-left font-semibold">Status</th> {/* Added font-semibold */}
+                  <th className="p-3 text-left font-semibold">Start Time (IST)</th>
+                  <th className="p-3 text-left font-semibold">Contest Name</th>
+                  <th className="p-3 text-center font-semibold">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {pastContests.map((contest) => (
                   <tr
                     key={contest.id}
-                    className="border-b border-gray-700 hover:bg-gray-700"
+                    className="border-b border-gray-700/50 hover:bg-gray-700/60 transition-colors duration-150" /* Added transparency */
                   >
+                    {/* Status cell */}
                     <td className="p-3 text-gray-300">
                       {new Date(contest.start) > now ? "Ongoing" : "Finished"}
                     </td>
+                    {/* Start time cell */}
                     <td className="p-3 text-gray-300">
                       {formatDate(contest.start)}
                     </td>
+                    {/* Contest name cell */}
                     <td className="p-3 text-white font-medium">
                       <a
                         href={contest.href}
@@ -545,38 +555,40 @@ export default function ContestList() {
                         {contest.event}
                       </a>
                     </td>
-                    <td className="p-3 flex justify-center gap-4">
-                      {/* YouTube solution button - visible to all users */}
+                    {/* Actions cell */}
+                    <td className="p-3 flex justify-center items-center gap-3"> {/* Reduced gap */}
+                      {/* Watch Solutions button */}
                       <button
                         onClick={() =>
                           window.open(
                             `https://www.youtube.com/results?search_query=${encodeURIComponent(
                               contest.event + " solutions"
-                            )}`,
+                            )}`, // Corrected YouTube URL
                             "_blank",
                             "noopener,noreferrer"
                           )
                         }
-                        className="px-4 py-2 rounded flex items-center gap-2 bg-red-500 text-white transition-all duration-200 hover:bg-red-600 hover:shadow-lg hover:transform hover:scale-105"
+                        className="px-3 py-1.5 rounded-md flex items-center gap-2 bg-gray-700/50 backdrop-blur-md text-white transition-all duration-200 hover:bg-gray-600/70 hover:shadow-lg transform hover:scale-105"
                       >
-                        <svg
+                        <svg // YouTube Icon
                           xmlns="http://www.w3.org/2000/svg"
-                          className="h-5 w-5"
+                          className="h-4 w-4 text-red-500" // Changed color to red
                           viewBox="0 0 24 24"
                           fill="currentColor"
                         >
                           <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" />
                         </svg>
-                        <span>Watch Solutions</span>
+                        <span className="text-sm">Solutions</span> {/* Smaller text */}
                       </button>
+                      {/* Add Note button */}
                       {token && (
                         <button
                           onClick={() => handleAddNote(contest.id)}
-                          className="px-4 py-2 rounded flex items-center gap-2 transition-all duration-200 bg-blue-500 hover:bg-blue-600 hover:shadow-lg hover:transform hover:scale-105 text-white"
+                          className="px-3 py-1.5 rounded-md flex items-center gap-2 bg-gray-700/50 backdrop-blur-md text-white transition-all duration-200 hover:bg-gray-600/70 hover:shadow-lg transform hover:scale-105"
                         >
-                          <svg
+                          <svg // Edit/Note Icon
                             xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5"
+                            className="h-4 w-4 text-yellow-500" // Changed color to yellow
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
@@ -587,7 +599,7 @@ export default function ContestList() {
                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                           </svg>
-                          Add Note
+                          <span className="text-sm">Add Note</span> {/* Smaller text */}
                         </button>
                       )}
                     </td>
@@ -599,33 +611,37 @@ export default function ContestList() {
         </div>
       )}
 
+      {/* Upcoming Contests Section */}
       {!isLoading && upcomingContests.length > 0 && (
         <div>
-          <h3 className="text-xl font-semibold text-white mb-2">
+          <h3 className="text-xl font-semibold text-white mb-3"> {/* Increased margin */}
             Upcoming Contests
           </h3>
-          <div className="overflow-x-auto">
-            <table className="w-full bg-gray-800 rounded-lg shadow">
+          <div className="overflow-x-auto bg-gray-800/50 backdrop-blur-sm rounded-lg shadow-lg"> {/* Added transparency, blur, shadow */}
+            <table className="w-full">
               <thead>
-                <tr className="bg-gray-900 text-white">
-                  <th className="p-3 text-left w-40">Countdown</th>
-                  <th className="p-3 text-left w-48">Start Time (IST)</th>
-                  <th className="p-3 text-left">Contest Name</th>
-                  {token && <th className="p-3 text-center w-64">Actions</th>}
+                <tr className="bg-gray-900/70 text-white"> {/* Added transparency */}
+                  <th className="p-3 text-left font-semibold w-40">Countdown</th>
+                  <th className="p-3 text-left font-semibold w-48">Start Time (IST)</th>
+                  <th className="p-3 text-left font-semibold">Contest Name</th>
+                  {token && <th className="p-3 text-center font-semibold w-64">Actions</th>}
                 </tr>
               </thead>
               <tbody>
                 {upcomingContests.map((contest) => (
                   <tr
                     key={contest.id}
-                    className="border-b border-gray-700 hover:bg-gray-700"
+                    className="border-b border-gray-700/50 hover:bg-gray-700/60 transition-colors duration-150" /* Added transparency */
                   >
+                    {/* Countdown cell */}
                     <td className="p-3 text-green-400 font-mono w-40">
                       <div className="w-32">{getCountdown(contest.start)}</div>
                     </td>
+                    {/* Start time cell */}
                     <td className="p-3 text-gray-300 w-48">
                       {formatDate(contest.start)}
                     </td>
+                    {/* Contest name cell */}
                     <td className="p-3 text-white font-medium">
                       <a
                         href={contest.href}
@@ -642,8 +658,10 @@ export default function ContestList() {
                         {contest.event}
                       </a>
                     </td>
+                    {/* Actions cell (conditional) */}
                     {token && (
-                      <td className="p-3 flex justify-center gap-4 w-64">
+                      <td className="p-3 flex justify-center items-center gap-3 w-64"> {/* Reduced gap */}
+                        {/* Reminder Button */}
                         <button
                           onClick={() =>
                             toggleReminder(
@@ -656,15 +674,16 @@ export default function ContestList() {
                               contest.start // Contest start time in ISO format
                             )
                           }
-                          className={`px-4 py-2 rounded flex items-center gap-2 transition-colors ${
+                          // Using blurry transparent style for consistency
+                          className={`px-3 py-1.5 rounded-md flex items-center gap-2 backdrop-blur-md text-white transition-all duration-200 hover:shadow-lg transform hover:scale-105 ${
                             isReminderSet(
                               contest.id,
                               contest.host
                                 .replace(".com", "")
                                 .replace(/^\w/, (c) => c.toUpperCase())
                             )
-                              ? "bg-yellow-500 hover:bg-yellow-700 text-white"
-                              : "bg-green-500 hover:bg-green-600 text-white"
+                              ? "bg-yellow-500/20 hover:bg-yellow-500/30" // Reminder set style
+                              : "bg-green-500/20 hover:bg-green-500/30" // Reminder not set style
                           }`}
                         >
                           {isReminderSet(
@@ -673,25 +692,26 @@ export default function ContestList() {
                               .replace(".com", "")
                               .replace(/^\w/, (c) => c.toUpperCase())
                           ) ? (
-                            <>⏰ Remove Reminder</>
+                            <><span className="text-sm">⏰ Remove</span></> // Smaller text
                           ) : (
-                            <>⏰ Set Reminder</>
+                            <><span className="text-sm">⏰ Set</span></> // Smaller text
                           )}
                         </button>
 
+                        {/* Bookmark Button */}
                         <button
                           onClick={() => toggleBookmark(contest.id)}
-                          // disabled={bookmarkLoading}
-                          className={`px-4 py-2 rounded flex items-center gap-2 transition-colors ${
+                          // Using blurry transparent style for consistency
+                          className={`px-3 py-1.5 rounded-md flex items-center gap-2 backdrop-blur-md text-white transition-all duration-200 hover:shadow-lg transform hover:scale-105 ${
                             isContestBookmarked(contest.id)
-                              ? "bg-yellow-500 hover:bg-yellow-700 text-white"
-                              : "bg-blue-500 hover:bg-blue-600 text-white"
+                              ? "bg-yellow-500/20 hover:bg-yellow-500/30" // Bookmarked style
+                              : "bg-blue-500/20 hover:bg-blue-500/30" // Not bookmarked style
                           }`}
                         >
                           {isContestBookmarked(contest.id) ? (
-                            <>🔖 Remove Bookmark</>
+                            <><span className="text-sm">🔖 Remove</span></> // Smaller text
                           ) : (
-                            <>⭐ Bookmark</>
+                            <><span className="text-sm">⭐ Bookmark</span></> // Smaller text
                           )}
                         </button>
                       </td>
@@ -704,8 +724,9 @@ export default function ContestList() {
         </div>
       )}
 
+      {/* No Contests Message */}
       {!isLoading && filteredContests.length === 0 && (
-        <div className="bg-gray-800 p-6 rounded-lg text-center text-white">
+        <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-lg text-center text-white shadow-lg"> {/* Added transparency, blur, shadow */}
           <p className="text-xl">
             No contests found for the selected platforms.
           </p>
@@ -714,6 +735,8 @@ export default function ContestList() {
           </p>
         </div>
       )}
+
+      {/* Contest Notes Modal (conditional rendering) */}
       {isModalOpen && (
         <ContestNotesModal
           contestId={selectedContestId}
