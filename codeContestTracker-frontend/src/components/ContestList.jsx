@@ -425,22 +425,22 @@ export default function ContestList() {
   const upcomingContests = filteredContests.filter(
     (contest) => new Date(contest.start) >= now
   );
-  return ( 
-    // Main container
-    <div className="max-w-5xl mx-auto mt-8 p-4">
-      <h2 className="text-3xl font-bold text-white mb-6 text-center bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text">
+  return (
+    // Main container - added responsive padding
+    <div className="max-w-5xl mx-auto mt-4 p-2 sm:p-4">
+      <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4 sm:mb-6 text-center bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text">
         Coding Contests
       </h2>
-
-      {/* Platform selection filter */}
-      <div className="mb-8 bg-gray-900/80 backdrop-blur-md p-6 rounded-xl shadow-lg border border-gray-800">
-        <h3 className="text-lg font-semibold text-gray-200 mb-4">
+  
+      {/* Platform selection filter - stack filters on mobile */}
+      <div className="mb-6 sm:mb-8 bg-gray-900/80 backdrop-blur-md p-4 sm:p-6 rounded-xl shadow-lg border border-gray-800">
+        <h3 className="text-base sm:text-lg font-semibold text-gray-200 mb-3 sm:mb-4">
           Filter by Platform {token ? "/ Bookmarks" : ""}
         </h3>
-        <div className="flex flex-wrap justify-center gap-4">
+        <div className="flex flex-wrap justify-center gap-2 sm:gap-4">
           <button
             onClick={() => toggleAllPlatforms()}
-            className={`px-6 py-3 rounded-lg transition-all duration-300
+            className={`px-4 py-2 sm:px-6 sm:py-3 rounded-lg transition-all duration-300 w-full sm:w-auto
               ${
                 Object.values(selectedPlatforms).every((value) => value)
                   ? "bg-blue-500/20 backdrop-blur-md text-white shadow-lg hover:bg-blue-500/30"
@@ -452,7 +452,7 @@ export default function ContestList() {
           </button>
           <button
             onClick={() => togglePlatform("codeforces.com")}
-            className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-all duration-300
+            className={`flex items-center justify-center sm:justify-start gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-lg transition-all duration-300 w-full sm:w-auto
               ${
                 selectedPlatforms["codeforces.com"]
                   ? "bg-blue-500/20 backdrop-blur-md text-white shadow-lg hover:bg-blue-500/30"
@@ -460,12 +460,12 @@ export default function ContestList() {
               }
               font-medium text-sm`}
           >
-            <img src={CodeforcesLogo} alt="Codeforces" className="w-6 h-6" />
+            <img src={CodeforcesLogo} alt="Codeforces" className="w-5 h-5 sm:w-6 sm:h-6" />
             Codeforces
           </button>
           <button
             onClick={() => togglePlatform("leetcode.com")}
-            className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-all duration-300
+            className={`flex items-center justify-center sm:justify-start gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-lg transition-all duration-300 w-full sm:w-auto
               ${
                 selectedPlatforms["leetcode.com"]
                   ? "bg-blue-500/20 backdrop-blur-md text-white shadow-lg hover:bg-blue-500/30"
@@ -473,12 +473,12 @@ export default function ContestList() {
               }
               font-medium text-sm`}
           >
-            <img src={LeetcodeLogo} alt="Leetcode" className="w-6 h-6" />
+            <img src={LeetcodeLogo} alt="Leetcode" className="w-5 h-5 sm:w-6 sm:h-6" />
             LeetCode
           </button>
           <button
             onClick={() => togglePlatform("codechef.com")}
-            className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-all duration-300
+            className={`flex items-center justify-center sm:justify-start gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-lg transition-all duration-300 w-full sm:w-auto
               ${
                 selectedPlatforms["codechef.com"]
                   ? "bg-blue-500/20 backdrop-blur-md text-white shadow-lg hover:bg-blue-500/30"
@@ -486,13 +486,13 @@ export default function ContestList() {
               }
               font-medium text-sm`}
           >
-            <img src={CodechefLogo} alt="Codechef" className="w-6 h-6" />
+            <img src={CodechefLogo} alt="Codechef" className="w-5 h-5 sm:w-6 sm:h-6" />
             CodeChef
           </button>
           {token && (
             <button
               onClick={() => togglePlatform("bookmark")}
-              className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-all duration-300
+              className={`flex items-center justify-center sm:justify-start gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-lg transition-all duration-300 w-full sm:w-auto
                 ${
                   selectedPlatforms["bookmark"]
                     ? "bg-blue-500/20 backdrop-blur-md text-white shadow-lg hover:bg-blue-500/30"
@@ -500,27 +500,29 @@ export default function ContestList() {
                 }
                 font-medium text-sm`}
             >
-              <img src={BookmarkIcon} alt="Bookmark" className="w-6 h-6" />
+              <img src={BookmarkIcon} alt="Bookmark" className="w-5 h-5 sm:w-6 sm:h-6" />
               Bookmarked
             </button>
           )}
         </div>
       </div>
-
+  
       {/* Loading indicator */}
       {isLoading && (
         <div className="flex justify-center items-center h-48">
-          <div className="animate-spin rounded-full h-20 w-20 border-t-4 border-b-4 border-blue-500"></div>
+          <div className="animate-spin rounded-full h-16 w-16 sm:h-20 sm:w-20 border-t-4 border-b-4 border-blue-500"></div>
         </div>
       )}
-
-      {/* Past Contests Section */}
+  
+      {/* Past Contests Section - Card layout for mobile instead of table */}
       {!isLoading && pastContests.length > 0 && (
-        <div className="mb-12">
-          <h3 className="text-2xl font-semibold text-gray-200 mb-4 bg-gradient-to-r from-gray-400 to-gray-600 text-transparent bg-clip-text">
+        <div className="mb-8 sm:mb-12">
+          <h3 className="text-xl sm:text-2xl font-semibold text-gray-200 mb-4 bg-gradient-to-r from-gray-400 to-gray-600 text-transparent bg-clip-text">
             Past Contests
           </h3>
-          <div className="overflow-x-auto bg-gray-900/80 backdrop-blur-md rounded-xl shadow-lg border border-gray-800">
+          
+          {/* Desktop view (hidden on mobile) */}
+          <div className="hidden sm:block overflow-x-auto bg-gray-900/80 backdrop-blur-md rounded-xl shadow-lg border border-gray-800">
             <table className="w-full">
               <thead className="bg-gray-800/90">
                 <tr className="text-white">
@@ -608,16 +610,102 @@ export default function ContestList() {
               </tbody>
             </table>
           </div>
+          
+          {/* Mobile view (card layout) */}
+          <div className="sm:hidden space-y-4">
+            {pastContests.map((contest) => (
+              <div 
+                key={contest.id}
+                className="bg-gray-900/80 backdrop-blur-md rounded-xl shadow-lg border border-gray-800 p-4"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <span
+                    className="inline-flex justify-center items-center min-w-8 min-h-8 text-xl"
+                    title={contest.host}
+                  >
+                    {getPlatformLogo(contest.host)}
+                  </span>
+                  <a
+                    href={contest.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-white font-medium hover:text-blue-400 transition-colors text-base"
+                  >
+                    {contest.event}
+                  </a>
+                </div>
+                <div className="text-sm text-gray-300 mb-2">
+                  <div className="flex justify-between mb-1">
+                    <span>Status:</span>
+                    <span>{new Date(contest.start) > now ? "Ongoing" : "Finished"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Start Time:</span>
+                    <span>{formatDate(contest.start)}</span>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2 mt-3">
+                  <button
+                    onClick={() =>
+                      window.open(
+                        `https://www.youtube.com/results?search_query=${encodeURIComponent(
+                          contest.event + " solutions"
+                        )}`,
+                        "_blank",
+                        "noopener,noreferrer"
+                      )
+                    }
+                    className="flex-1 px-3 py-2 rounded-lg flex items-center justify-center gap-1 bg-gray-800/50 backdrop-blur-md text-white transition-all duration-300
+                             font-medium text-sm"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4 text-red-500"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                    >
+                      <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" />
+                    </svg>
+                    <span className="text-sm">Solutions</span>
+                  </button>
+                  {token && (
+                    <button
+                      onClick={() => handleAddNote(contest.id)}
+                      className="flex-1 px-3 py-2 rounded-lg flex items-center justify-center gap-1 bg-gray-800/50 backdrop-blur-md text-white transition-all duration-300
+                               font-medium text-sm"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4 text-yellow-500"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                      </svg>
+                      <span className="text-sm">Add Note</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
-
-      {/* Upcoming Contests Section */}
+  
+      {/* Upcoming Contests Section - Card layout for mobile */}
       {!isLoading && upcomingContests.length > 0 && (
-        <div className="mb-12">
-          <h3 className="text-2xl font-semibold text-gray-200 mb-4 bg-gradient-to-r from-gray-400 to-gray-600 text-transparent bg-clip-text">
+        <div className="mb-8 sm:mb-12">
+          <h3 className="text-xl sm:text-2xl font-semibold text-gray-200 mb-4 bg-gradient-to-r from-gray-400 to-gray-600 text-transparent bg-clip-text">
             Upcoming Contests
           </h3>
-          <div className="overflow-x-auto bg-gray-900/80 backdrop-blur-md rounded-xl shadow-lg border border-gray-800">
+          
+          {/* Desktop view (hidden on mobile) */}
+          <div className="hidden sm:block overflow-x-auto bg-gray-900/80 backdrop-blur-md rounded-xl shadow-lg border border-gray-800">
             <table className="w-full">
               <thead className="bg-gray-800/90">
                 <tr className="text-white">
@@ -722,21 +810,126 @@ export default function ContestList() {
               </tbody>
             </table>
           </div>
+          
+          {/* Mobile view (card layout) */}
+          <div className="sm:hidden space-y-4">
+            {upcomingContests.map((contest) => (
+              <div 
+                key={contest.id}
+                className="bg-gray-900/80 backdrop-blur-md rounded-xl shadow-lg border border-gray-800 p-4"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <span
+                    className="inline-flex justify-center items-center min-w-8 min-h-8 text-xl"
+                    title={contest.host}
+                  >
+                    {getPlatformLogo(contest.host)}
+                  </span>
+                  <a
+                    href={contest.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-white font-medium hover:text-blue-400 transition-colors flex-1 text-base"
+                  >
+                    {contest.event}
+                  </a>
+                </div>
+                <div className="text-sm text-gray-300 mb-2">
+                  <div className="flex justify-between mb-1">
+                    <span>Countdown:</span>
+                    <span className="text-green-400 font-mono">{getCountdown(contest.start)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Start Time:</span>
+                    <span>{formatDate(contest.start)}</span>
+                  </div>
+                </div>
+                {token && (
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    <button
+                      onClick={() =>
+                        toggleReminder(
+                          contest.id,
+                          contest.host
+                            .replace(".com", "")
+                            .replace(/^\w/, (c) => c.toUpperCase()),
+                          "email",
+                          60,
+                          contest.start
+                        )
+                      }
+                      className={`flex-1 px-3 py-2 rounded-lg flex items-center justify-center gap-1 text-white transition-all duration-300
+                                font-medium text-sm
+                                ${
+                                  isReminderSet(
+                                    contest.id,
+                                    contest.host
+                                      .replace(".com", "")
+                                      .replace(/^\w/, (c) => c.toUpperCase())
+                                  )
+                                    ? "bg-yellow-500/20 backdrop-blur-md hover:bg-yellow-600/30 text-yellow-100"
+                                    : "bg-green-500/20 backdrop-blur-md hover:bg-green-600/30 text-green-100"
+                                }`}
+                    >
+                      {isReminderSet(
+                        contest.id,
+                        contest.host
+                          .replace(".com", "")
+                          .replace(/^\w/, (c) => c.toUpperCase())
+                      ) ? (
+                        <>
+                          <span>⏰</span>
+                          <span className="text-sm">Remove Reminder</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>⏰</span>
+                          <span className="text-sm">Set Reminder</span>
+                        </>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => toggleBookmark(contest.id)}
+                      className={`flex-1 px-3 py-2 rounded-lg flex items-center justify-center gap-1 text-white transition-all duration-300
+                                font-medium text-sm
+                                ${
+                                  isContestBookmarked(contest.id)
+                                    ? "bg-yellow-500/20 backdrop-blur-md hover:bg-yellow-600/30 text-yellow-100"
+                                    : "bg-blue-500/20 backdrop-blur-md hover:bg-blue-600/30 text-blue-100"
+                                }`}
+                    >
+                      {isContestBookmarked(contest.id) ? (
+                        <>
+                          <span>🔖</span>
+                          <span className="text-sm">Remove Bookmark</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>⭐</span>
+                          <span className="text-sm">Bookmark</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       )}
-
+  
       {/* No Contests Message */}
       {!isLoading && filteredContests.length === 0 && (
-        <div className="bg-gray-900/80 backdrop-blur-md p-8 rounded-xl text-center text-gray-200 shadow-lg border border-gray-800">
-          <p className="text-2xl font-semibold mb-3">
+        <div className="bg-gray-900/80 backdrop-blur-md p-6 sm:p-8 rounded-xl text-center text-gray-200 shadow-lg border border-gray-800">
+          <p className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-3">
             No contests found for the selected platforms.
           </p>
-          <p className="text-gray-400 text-lg">
+          <p className="text-gray-400 text-base sm:text-lg">
             Try selecting different platforms or check back later.
           </p>
         </div>
       )}
-
+  
       {/* Contest Notes Modal */}
       {isModalOpen && (
         <ContestNotesModal

@@ -55,6 +55,7 @@ app.use(
     credentials: true, // Enable credentials if using cookies or auth tokens
   })
 );
+
 // app.use(cors()); // allow everybody to use backend
 
 app.use(express.json()); // Parse JSON request bodies
@@ -71,8 +72,6 @@ app.use("/api/users", userRoutes);
 app.use("/api/contests", contestRoutes);
 app.use("/api/bookmarks", bookmarkRoutes);
 app.use("/api/reminders", reminderRoutes);
-
-
 
 /**
  * Start the server
